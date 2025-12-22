@@ -44,14 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         try {
             $mail->isSMTP();
-            $mail->Host       = 's01bd.syd2.hostingplatform.net.au';
+            $mail->Host       = 'your.smtp.host.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'admin@sunnyspotholidays.com.au';
-            $mail->Password   = 'password';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = 465;
-
-            $mail->setFrom('admin@sunnyspotholidays.com.au', 'Sunny Spot Holidays');
+            $mail->Username   = 'your-email@example.com';
+            $mail->Password   = 'your-email-password';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
+            $mail->Port       = 465; 
+            $mail->setFrom('your-email@example.com', 'Sunny Spot Holidays');
             $mail->addAddress($email);
 
             $mail->isHTML(true);
