@@ -1,5 +1,10 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 include("database_connect.php");
 
 $inclusions = [];
@@ -13,52 +18,56 @@ $messageErr = "";
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $action = $_POST['action'] ?? '';
-    $id = $_POST['incID'] ?? null;
-    $name = $_POST['incName'] ?? '';
-    $detail = $_POST['incDetails'] ?? '';
-    $action = $_POST['action'] ?? '';
-    // Update form
-    if ($action === 'update' && $id > 0) {
-        $incTable = $connect->prepare("UPDATE inclusion SET incName=?, incDetails=? WHERE incID=?");
-        $incTable->bind_param("ssi", $name, $detail, $id);
-        $incTable->execute();
-        $incTable->close();
-        $message = "Inclusion updated successfully!";
-    }
-    // Delete form
-    elseif ($action === 'delete' && $id > 0) {
-        $incTable = $connect->prepare("DELETE FROM inclusion WHERE incID=?");
-        $incTable->bind_param("i", $id);
-        $incTable->execute();
-        $incTable->close();
-        $message = "Inclusion deleted successfully!";
-    }
-    // Add new inclusion
-    elseif ($action === "insert") {
-        $name = trim($_POST['incName'] ?? '');
-        $detail = trim($_POST['incDetails'] ?? '');
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $messageErr = "Security validation failed. Please try again.";
+    } else {
+        $action = $_POST['action'] ?? '';
+        $id = $_POST['incID'] ?? null;
+        $name = $_POST['incName'] ?? '';
+        $detail = $_POST['incDetails'] ?? '';
+        $action = $_POST['action'] ?? '';
+        // Update form
+        if ($action === 'update' && $id > 0) {
+            $incTable = $connect->prepare("UPDATE inclusion SET incName=?, incDetails=? WHERE incID=?");
+            $incTable->bind_param("ssi", $name, $detail, $id);
+            $incTable->execute();
+            $incTable->close();
+            $message = "Inclusion updated successfully!";
+        }
+        // Delete form
+        elseif ($action === 'delete' && $id > 0) {
+            $incTable = $connect->prepare("DELETE FROM inclusion WHERE incID=?");
+            $incTable->bind_param("i", $id);
+            $incTable->execute();
+            $incTable->close();
+            $message = "Inclusion deleted successfully!";
+        }
+        // Add new inclusion
+        elseif ($action === "insert") {
+            $name = trim($_POST['incName'] ?? '');
+            $detail = trim($_POST['incDetails'] ?? '');
 
-        if (empty($name)) {
-            $messageErr = "Inclusion name is required!";
-        } else {
-            // Check if a record with the same name already exists
-            $incCheck = $connect->prepare("SELECT COUNT(*) FROM inclusion WHERE incName = ?");
-            $incCheck->bind_param("s", $name);
-            $incCheck->execute();
-            $incCheck->bind_result($count);
-            $incCheck->fetch();
-            $incCheck->close();
-
-            if ($count > 0) {
-                $messageErr = "Inclusion already exists!";
+            if (empty($name)) {
+                $messageErr = "Inclusion name is required!";
             } else {
-                // Insert new inclusion
-                $incTable = $connect->prepare("INSERT INTO inclusion (incName, incDetails) VALUES (?, ?)");
-                $incTable->bind_param("ss", $name, $detail);
-                $incTable->execute();
-                $incTable->close();
-                $message = "New inclusion added successfully!";
+                // Check if a record with the same name already exists
+                $incCheck = $connect->prepare("SELECT COUNT(*) FROM inclusion WHERE incName = ?");
+                $incCheck->bind_param("s", $name);
+                $incCheck->execute();
+                $incCheck->bind_result($count);
+                $incCheck->fetch();
+                $incCheck->close();
+
+                if ($count > 0) {
+                    $messageErr = "Inclusion already exists!";
+                } else {
+                    // Insert new inclusion
+                    $incTable = $connect->prepare("INSERT INTO inclusion (incName, incDetails) VALUES (?, ?)");
+                    $incTable->bind_param("ss", $name, $detail);
+                    $incTable->execute();
+                    $incTable->close();
+                    $message = "New inclusion added successfully!";
+                }
             }
         }
     }
@@ -460,10 +469,10 @@ $connect->close();
         <div class="inclusion-details">
             <h2>Inclusion Details</h2>
             <?php if (!empty($message)): ?>
-                <p class="message"><?php echo $message; ?></p>
+                <p class="message"><?php echo htmlspecialchars($message); ?></p>
             <?php endif; ?>
             <?php if (!empty($messageErr)): ?>
-                <p class="messageErr"><?php echo $messageErr; ?></p>
+                <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
             <?php endif; ?>
             <div class="table-container">
                 <table>
@@ -480,9 +489,10 @@ $connect->close();
                         <?php foreach ($inclusions as $i => $inclusion): ?>
                             <tr>
                                 <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                     <td>
-                                        <input type="hidden" name="incID" value="<?php echo $inclusion['incID']; ?>"
-                                            readonly>
+                                        <input type="hidden" name="incID"
+                                            value="<?php echo htmlspecialchars($inclusion['incID']); ?>" readonly>
                                         <?php echo $inclusion['incID']; ?>
                                     </td>
                                     <td>
@@ -510,6 +520,7 @@ $connect->close();
             <br>
             <h3 style="width: 100%; text-align: center; color: black; margin-bottom: -0.5rem;">Add New Inclusion</h3>
             <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <div class="new-inclusion">
                     <div class="wrapper">
                         <label>Name:</label>

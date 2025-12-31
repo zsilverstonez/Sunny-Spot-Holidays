@@ -1,22 +1,71 @@
 <?php
+session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $receivedMessage = '';
 $receivedMessageErr = '';
 include 'database_connect.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['contact-name'] ?? '');
-    $phone = trim($_POST['contact-phone'] ?? '');
-    $email = trim($_POST['contact-email'] ?? '');
-    $message = trim($_POST['contact-message'] ?? '');
-    $status = 'new';
 
-    if (!$name || !$phone || !$email || !$message) {
-        $receivedMessageErr = 'There is an error in submitting your message.<br>Please check and resubmit again.';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $receivedMessageErr = "Security validation failed. Please try again.";
     } else {
-        $contactTable = $connect->prepare("INSERT INTO contact (name, phone, email, message, status) VALUES (?,?,?,?,?)");
-        $contactTable->bind_param("sssss", $name, $phone, $email, $message, $status);
-        $contactTable->execute();
-        $receivedMessage = 'Thank you for contact us! We will get back to you as soon as possible.';
-        $contactTable->close();
+        $name = trim($_POST['contact-name'] ?? '');
+        $phone = trim($_POST['contact-phone'] ?? '');
+        $email = trim($_POST['contact-email'] ?? '');
+        $message = trim($_POST['contact-message'] ?? '');
+        $status = 'new';
+
+        if (!$name || !$phone || !$email || !$message) {
+            $receivedMessageErr = 'There is an error in submitting your message.<br>Please check and resubmit again.';
+        } else {
+            // Check if connection exists
+            if (!$connect) {
+                $receivedMessageErr = 'Database connection failed: ' . mysqli_connect_error();
+            } else {
+                $contactTable = $connect->prepare("INSERT INTO contact (name, phone, email, message, status) VALUES (?,?,?,?,?)");
+
+                if ($contactTable === false) {
+                    $receivedMessageErr = 'Prepare failed: ' . $connect->error;
+                } else {
+                    $contactTable->bind_param("sssss", $name, $phone, $email, $message, $status);
+
+                    if ($contactTable->execute()) {
+                        $receivedMessage = 'Thank you for contacting us! We will get back to you as soon as possible.';
+                    } else {
+                        $receivedMessageErr = 'Error submitting message: ' . $contactTable->error;
+                    }
+
+                    $contactTable->close();
+
+                    // Mail Notification
+                    $headers = "From: noreply@sunnyspotholidays.com.au\r\n";
+                    $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
+                    $safeName = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $safeEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
+                    $safePhone = filter_var($phone, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $safeMessage = filter_var($message, FILTER_SANITIZE_SPECIAL_CHARS);
+                    mail(
+                        'zsilverstonez@gmail.com',
+                        'New Contact - Sunny Spot Holidays',
+                        'A new contact has been received at Sunny Spot Holidays! 
+
+Guest: ' . $safeName . '
+Phone: ' . $safePhone . '
+Email: ' . $safeEmail . '
+Message: ' . $safeMessage . '
+
+Please log in to the admin dashboard to view full details and manage this contact.
+
+This is an automated notification from sunnyspotholidays.com.au',
+                        $headers
+                    );
+                }
+            }
+        }
     }
 }
 ?>
@@ -335,7 +384,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </nav>
     </header>
     <main class="main-contact">
-        <form id="contact-form" action="contact.php" method="post">
+        <form id="contact-form" action="contact" method="post">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="contact-header-divider">
                 <img src="images/contact.gif" alt="contact-icon" class="contact-icon">
                 <h2 class="contact-header">Contact Us</h2>
@@ -368,7 +418,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 width="880" height="300" style="border:0;" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"></iframe>
         </form>
-    </main>
     </main>
     <footer>
         <p>

@@ -1,5 +1,9 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -329,7 +333,7 @@ $connect->close();
         <div class="log-details">
             <h2>Log Details</h2>
             <?php if (!empty($mainMessage)): ?>
-                <p class="message"><?php echo $mainMessage; ?></p>
+                <p class="message"><?php echo htmlspecialchars($mainMessage); ?></p>
             <?php endif; ?>
             <div class="table-container">
                 <table>
@@ -345,7 +349,9 @@ $connect->close();
                         <?php foreach ($logs as $i => $log): ?>
                             <tr>
                                 <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
-                                    <input type="hidden" name="logID" value="<?php echo $log['logID']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                    <input type="hidden" name="logID"
+                                        value="<?php echo htmlspecialchars($log['logID']); ?>">
                                     <td><input type="text" name="staffID"
                                             value="<?php echo htmlspecialchars($log['staffID']); ?>" readonly>
                                     </td>

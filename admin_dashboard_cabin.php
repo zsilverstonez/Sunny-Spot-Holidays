@@ -1,6 +1,9 @@
     <?php
     session_start();
-
+    // Generate random csrf token
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
     // Only allow logged-in users
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         header("Location: login.php");
@@ -37,137 +40,141 @@
     $uploadPhoto = true;
     // Handle form submission
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        // INSERT new cabin
-        if (!isset($_POST['cabinID']) && isset($_POST['cabinType'])) {
-            $cabinType = $_POST['cabinType'];
-            $cabinDescription = $_POST['cabinDescription'];
-            $pricePerNight = $_POST['pricePerNight'];
-            $pricePerWeek = $_POST['pricePerWeek'];
-            if ($pricePerNight < 0 || $pricePerWeek < 0) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Prices must not be negative.";
-            } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Prices must be a whole number.";
-            } elseif ($pricePerWeek > $pricePerNight * 5) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
-            }
-            if (isset($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                $fileType = $_FILES['photo']['type'];
-                $fileSize = $_FILES['photo']['size'];
-
-                if (!in_array($fileType, $allowedTypes)) {
-                    $messageCabin = "Add new cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
-                    $uploadPhoto = false;
-                } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB
-                    $messageCabin = "Add new cabin unsuccessful!<br>Photo size must be less than 2MB.";
-                    $uploadPhoto = false;
-                } else {
-                    $uploadPath = "images/";
-                    $photo = basename($_FILES['photo']['name']);
-                    move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPath . $photo); // move_uploaded_file: move the photo to file. tmp_name: temporary name of the uploaded file given by PHP. If not use this temporary file, and just rely on the original filename (name), two or more users uploading files with the same name could overwrite each other’s files.
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $messageCabin = "Security validation failed. Please try again.";
+        } else {
+            // INSERT new cabin
+            if (!isset($_POST['cabinID']) && isset($_POST['cabinType'])) {
+                $cabinType = $_POST['cabinType'];
+                $cabinDescription = $_POST['cabinDescription'];
+                $pricePerNight = $_POST['pricePerNight'];
+                $pricePerWeek = $_POST['pricePerWeek'];
+                if ($pricePerNight < 0 || $pricePerWeek < 0) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Prices must not be negative.";
+                } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Prices must be a whole number.";
+                } elseif ($pricePerWeek > $pricePerNight * 5) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
                 }
-            } else {
-                $photo = 'testCabin.jpg'; // default/fallback
-            }
-            if (empty($messageCabin) && $uploadPhoto) {
-                // Connect to database and prepare statement 
-                $cabinsTable = $connect->prepare(
-                    "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo) VALUES (?, ?, ?, ?, ?)"
-                );
-                // Declare variable types
-                $cabinsTable->bind_param("ssdds", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo);
-                // Execute getting cabins data
-                $cabinsTable->execute();
-                // Get new id for the new cabin
-                $newCabinID = $connect->insert_id;
-                // Insert inclusions list for the new cabin
-                if (!empty($_POST['incID'])) {
-                    // Use foreach as each cabin can have more than one inclusion
-                    foreach ($_POST['incID'] as $incID) {
-                        $incID = (int)$incID;
-                        $cabinInclusion = $connect->prepare(
-                            "INSERT INTO cabin_inclusion (cabinID, incID) VALUES ( ?, ?)"
-                        );
-                        $cabinInclusion->bind_param("ii", $newCabinID, $incID);
-                        $cabinInclusion->execute();
-                        $cabinInclusion->close();
+                if (isset($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
+                    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    $fileType = $_FILES['photo']['type'];
+                    $fileSize = $_FILES['photo']['size'];
+
+                    if (!in_array($fileType, $allowedTypes)) {
+                        $messageCabin = "Add new cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
+                        $uploadPhoto = false;
+                    } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB
+                        $messageCabin = "Add new cabin unsuccessful!<br>Photo size must be less than 2MB.";
+                        $uploadPhoto = false;
+                    } else {
+                        $uploadPath = "images/";
+                        $photo = basename($_FILES['photo']['name']);
+                        move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPath . $photo); // move_uploaded_file: move the photo to file. tmp_name: temporary name of the uploaded file given by PHP. If not use this temporary file, and just rely on the original filename (name), two or more users uploading files with the same name could overwrite each other’s files.
                     }
-                }
-                // Close getting cabins data 
-                $cabinsTable->close();
-                // Successful updating message
-                $messageCabinSuccess = "New cabin inserted successfully!";
-            }
-        }
-    }
-    // UPDATE cabins
-    if (isset($_POST['cabinID'])) {
-        foreach ($_POST['cabinID'] as $index => $id) {
-            $cabinID = (int)$id;
-            $cabinType = $_POST['cabinType'][$index];
-            $cabinDescription = $_POST['cabinDescription'][$index];
-            $pricePerNight = $_POST['pricePerNight'][$index];
-            $pricePerWeek = $_POST['pricePerWeek'][$index];
-            if ($pricePerNight < 0 || $pricePerWeek < 0) {
-                $messageCabin = "Update cabin unsuccessful!<br>Prices must not be negative.";
-                $uploadPhoto = false;
-            } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
-                $messageCabin = "update cabin unsuccessful!<br>Prices must be a whole number.";
-            } elseif ($pricePerWeek > $pricePerNight * 5) {
-                $messageCabin = "Update cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
-                $uploadPhoto = false;
-            }
-            if (isset($_FILES['photo']['name'][$index]) && $_FILES['photo']['error'][$index] == 0) {
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                $fileType = $_FILES['photo']['type'][$index];
-                $fileSize = $_FILES['photo']['size'][$index];
-
-                if (!in_array($fileType, $allowedTypes)) {
-                    $messageCabin = "Update cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
-                    $photo = $_POST['photo_existing'][$index]; // keep old photo
-                } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB in bytes
-                    $messageCabin = "Update cabin unsuccessful!<br>Photo size must be less than 2MB.";
-                    $photo = $_POST['photo_existing'][$index]; // keep old photo
                 } else {
-                    $uploadPath = "images/";
-                    $photo = basename($_FILES['photo']['name'][$index]);
-                    move_uploaded_file($_FILES['photo']['tmp_name'][$index], $uploadPath . $photo);
+                    $photo = 'testCabin.jpg'; // default/fallback
                 }
-            } else {
-                $photo = $_POST['photo_existing'][$index]; // keep old photo
-            }
-            if (empty($messageCabin) && $uploadPhoto) {
-                // Ensure there is at least one cabin
-                if ($id > 0) {
+                if (empty($messageCabin) && $uploadPhoto) {
                     // Connect to database and prepare statement 
                     $cabinsTable = $connect->prepare(
-                        "UPDATE cabin 
-            SET cabinType=?, cabinDescription=?, pricePerNight=?, pricePerWeek=?, photo=? 
-            WHERE cabinID=?"
+                        "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo) VALUES (?, ?, ?, ?, ?)"
                     );
-                    // To update cabin_inclusion table, because it is a bridge between cabin table  and inclusion table, so the best way is to delete all existing inclusions then insert new ones
-                    $deleteCabinInclusion = $connect->prepare("DELETE FROM cabin_inclusion WHERE cabinID=?");
-                    $deleteCabinInclusion->bind_param("i", $cabinID);
-                    $deleteCabinInclusion->execute();
-                    $deleteCabinInclusion->close();
-                    if (!empty($_POST['incID'][$cabinID])) {
+                    // Declare variable types
+                    $cabinsTable->bind_param("ssdds", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo);
+                    // Execute getting cabins data
+                    $cabinsTable->execute();
+                    // Get new id for the new cabin
+                    $newCabinID = $connect->insert_id;
+                    // Insert inclusions list for the new cabin
+                    if (!empty($_POST['incID'])) {
                         // Use foreach as each cabin can have more than one inclusion
-                        foreach ($_POST['incID'][$cabinID] as $incID) {
+                        foreach ($_POST['incID'] as $incID) {
                             $incID = (int)$incID;
-                            $cabinInclusion = $connect->prepare("INSERT INTO cabin_inclusion (cabinID, incID) VALUES (?, ?)");
-                            $cabinInclusion->bind_param("ii", $cabinID, $incID);
+                            $cabinInclusion = $connect->prepare(
+                                "INSERT INTO cabin_inclusion (cabinID, incID) VALUES ( ?, ?)"
+                            );
+                            $cabinInclusion->bind_param("ii", $newCabinID, $incID);
                             $cabinInclusion->execute();
                             $cabinInclusion->close();
                         }
                     }
-                    // Declare variable types
-                    $cabinsTable->bind_param("ssddsi", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo, $cabinID);
-                    // Execute getting cabins data
-                    $cabinsTable->execute();
                     // Close getting cabins data 
                     $cabinsTable->close();
                     // Successful updating message
-                    $messageCabinSuccess = "Cabin updated successfully!";
+                    $messageCabinSuccess = "New cabin inserted successfully!";
+                }
+            }
+        }
+        // UPDATE cabins
+        if (isset($_POST['cabinID'])) {
+            foreach ($_POST['cabinID'] as $index => $id) {
+                $cabinID = (int)$id;
+                $cabinType = $_POST['cabinType'][$index];
+                $cabinDescription = $_POST['cabinDescription'][$index];
+                $pricePerNight = $_POST['pricePerNight'][$index];
+                $pricePerWeek = $_POST['pricePerWeek'][$index];
+                if ($pricePerNight < 0 || $pricePerWeek < 0) {
+                    $messageCabin = "Update cabin unsuccessful!<br>Prices must not be negative.";
+                    $uploadPhoto = false;
+                } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
+                    $messageCabin = "update cabin unsuccessful!<br>Prices must be a whole number.";
+                } elseif ($pricePerWeek > $pricePerNight * 5) {
+                    $messageCabin = "Update cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
+                    $uploadPhoto = false;
+                }
+                if (isset($_FILES['photo']['name'][$index]) && $_FILES['photo']['error'][$index] == 0) {
+                    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    $fileType = $_FILES['photo']['type'][$index];
+                    $fileSize = $_FILES['photo']['size'][$index];
+
+                    if (!in_array($fileType, $allowedTypes)) {
+                        $messageCabin = "Update cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
+                        $photo = $_POST['photo_existing'][$index]; // keep old photo
+                    } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB in bytes
+                        $messageCabin = "Update cabin unsuccessful!<br>Photo size must be less than 2MB.";
+                        $photo = $_POST['photo_existing'][$index]; // keep old photo
+                    } else {
+                        $uploadPath = "images/";
+                        $photo = basename($_FILES['photo']['name'][$index]);
+                        move_uploaded_file($_FILES['photo']['tmp_name'][$index], $uploadPath . $photo);
+                    }
+                } else {
+                    $photo = $_POST['photo_existing'][$index]; // keep old photo
+                }
+                if (empty($messageCabin) && $uploadPhoto) {
+                    // Ensure there is at least one cabin
+                    if ($id > 0) {
+                        // Connect to database and prepare statement 
+                        $cabinsTable = $connect->prepare(
+                            "UPDATE cabin 
+            SET cabinType=?, cabinDescription=?, pricePerNight=?, pricePerWeek=?, photo=? 
+            WHERE cabinID=?"
+                        );
+                        // To update cabin_inclusion table, because it is a bridge between cabin table  and inclusion table, so the best way is to delete all existing inclusions then insert new ones
+                        $deleteCabinInclusion = $connect->prepare("DELETE FROM cabin_inclusion WHERE cabinID=?");
+                        $deleteCabinInclusion->bind_param("i", $cabinID);
+                        $deleteCabinInclusion->execute();
+                        $deleteCabinInclusion->close();
+                        if (!empty($_POST['incID'][$cabinID])) {
+                            // Use foreach as each cabin can have more than one inclusion
+                            foreach ($_POST['incID'][$cabinID] as $incID) {
+                                $incID = (int)$incID;
+                                $cabinInclusion = $connect->prepare("INSERT INTO cabin_inclusion (cabinID, incID) VALUES (?, ?)");
+                                $cabinInclusion->bind_param("ii", $cabinID, $incID);
+                                $cabinInclusion->execute();
+                                $cabinInclusion->close();
+                            }
+                        }
+                        // Declare variable types
+                        $cabinsTable->bind_param("ssddsi", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo, $cabinID);
+                        // Execute getting cabins data
+                        $cabinsTable->execute();
+                        // Close getting cabins data 
+                        $cabinsTable->close();
+                        // Successful updating message
+                        $messageCabinSuccess = "Cabin updated successfully!";
+                    }
                 }
             }
         }
@@ -619,17 +626,17 @@
                     </select>
                 </div>
                 <?php if (!empty($messageCabin)): ?>
-                    <p class="message"><?php echo $messageCabin; ?></p>
+                    <p class="message"><?php echo htmlspecialchars($messageCabin); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($messageCabinSuccess)): ?>
-                    <p class="messageSuccess"><?php echo $messageCabinSuccess; ?></p>
+                    <p class="messageSuccess"><?php echo htmlspecialchars($messageCabinSuccess); ?></p>
                 <?php endif; ?>
                 <!-- ADD NEW CABIN -->
                 <div class="add-new-cabin">
                     <form method="POST" enctype="multipart/form-data"
                         onsubmit="return confirm('Are you sure about the change?');">
                         <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
-
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <div class="cabin-top">
                             <div class="form-divider">
                                 <label>Cabin Type: </label>
@@ -704,8 +711,10 @@
                         <form method="POST" enctype="multipart/form-data"
                             onsubmit="return confirm('Are you sure about the change?');">
                             <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                             <div class="cabin-top">
-                                <input type="hidden" name="cabinID[]" value="<?php echo $cabin['cabinID']; ?>">
+                                <input type="hidden" name="cabinID[]"
+                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
                                 <div class="form-divider">
                                     <label>Cabin Type: </label>
                                     <input type="text" name="cabinType[]"
@@ -778,8 +787,10 @@
                                                 <td><?php echo htmlspecialchars($inclusion['incName']); ?></td>
                                                 <td>
                                                     <!--name="incID[<?php echo $cabin['cabinID']; ?>][]" means getting the id of cabin in cabins to insert inclusion, [] at the end to create an array so each cabin can have more than one inclusion-->
-                                                    <input type="checkbox" name="incID[<?php echo $cabin['cabinID']; ?>][]"
-                                                        value="<?php echo $inclusion['incID']; ?>" <?php echo $checked; ?>>
+                                                    <input type="checkbox"
+                                                        name="incID[<?php echo htmlspecialchars($cabin['cabinID']); ?>][]"
+                                                        value="<?php echo htmlspecialchars($inclusion['incID']); ?>"
+                                                        <?php echo htmlspecialchars($checked); ?>>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -787,14 +798,16 @@
                                 </div>
                             </div>
                             <div class="button-wrapper"><button type="submit" class="update-button"
-                                    value="<?php echo $cabin['cabinID']; ?>">Update
+                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Update
                                     Cabin</button></div>
                         </form>
                         <a class="back" href="admin_dashboard_cabin.php">Back</a>
                         <form method="POST" onsubmit="return confirm('Are you sure about deleting this cabin?');">
-                            <input type="hidden" name="delete_id" value="<?php echo $cabin['cabinID']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="delete_id"
+                                value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
                             <div class="button-wrapper"><button type="submit" class="delete-button"
-                                    value="<?php echo $cabin['cabinID']; ?>">Delete Cabin</button></div>
+                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Delete Cabin</button></div>
                         </form>
                     </div>
                 <?php endforeach; ?>

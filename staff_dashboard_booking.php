@@ -1,5 +1,9 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -32,51 +36,53 @@ $mainMessage = "";
 $messageErr = "";
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id = (int)$_POST['id'];
-    $action = $_POST['action'] ?? '';
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $messageErr = "Security validation failed. Please try again.";
+    } else {
+        $id = (int)$_POST['id'];
+        $action = $_POST['action'] ?? '';
 
+        if ($action === 'update') {
+            $first_name = $_POST['first_name'] ?? '';
+            $last_name = $_POST['last_name'] ?? '';
+            $phone = $_POST['phone'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $cabinType = $_POST['cabin_type'] ?? '';
+            $arrival = $_POST['arrival'] ?? '';
+            $departure = $_POST['departure'] ?? '';
+            $number_of_guest = $_POST['number_of_guest'] ?? 0;
+            $message = $_POST['message'] ?? '';
 
-
-    if ($action === 'update') {
-        $first_name = $_POST['first_name'] ?? '';
-        $last_name = $_POST['last_name'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $cabinType = $_POST['cabin_type'] ?? '';
-        $arrival = $_POST['arrival'] ?? '';
-        $departure = $_POST['departure'] ?? '';
-        $number_of_guest = $_POST['number_of_guest'] ?? 0;
-        $message = $_POST['message'] ?? '';
-
-        $bookingsTable = $connect->prepare(
-            "UPDATE booking 
+            $bookingsTable = $connect->prepare(
+                "UPDATE booking 
         SET first_name=?, last_name=?,phone=?, email=?, cabin_type=?, arrival=?, departure=?, number_of_guest=?, message=? 
         WHERE id=?"
-        );
-        // Declare variable types
-        $bookingsTable->bind_param("sssssssisi", $first_name, $last_name, $phone, $email, $cabinType, $arrival, $departure, $number_of_guest, $message, $id);
-        // Execute getting bookings data
-        $bookingsTable->execute();
-        // Close getting bookings data 
-        $bookingsTable->close();
-        // Successful updating booking
-        $mainMessage = "Booking updated successfully!";
-    } elseif ($action === 'delete') {
-        $bookingsTable = $connect->prepare("DELETE FROM booking WHERE id=?");
-        $bookingsTable->bind_param("i", $id);
-        // Execute delete bookings data
-        $bookingsTable->execute();
-        // Close getting bookings data 
-        $bookingsTable->close();
-        // Successful deleting booking
-        $mainMessage = "Booking deleted successfully!";
-    }
-    // Reload cabins from database after updating
-    $bookings = [];
-    $result = $connect->query("SELECT * FROM booking ORDER BY booking_at DESC");
-    // Get each data pair of rows
-    while ($row = $result->fetch_assoc()) {
-        $bookings[] = $row;
+            );
+            // Declare variable types
+            $bookingsTable->bind_param("sssssssisi", $first_name, $last_name, $phone, $email, $cabinType, $arrival, $departure, $number_of_guest, $message, $id);
+            // Execute getting bookings data
+            $bookingsTable->execute();
+            // Close getting bookings data 
+            $bookingsTable->close();
+            // Successful updating booking
+            $mainMessage = "Booking updated successfully!";
+        } elseif ($action === 'delete') {
+            $bookingsTable = $connect->prepare("DELETE FROM booking WHERE id=?");
+            $bookingsTable->bind_param("i", $id);
+            // Execute delete bookings data
+            $bookingsTable->execute();
+            // Close getting bookings data 
+            $bookingsTable->close();
+            // Successful deleting booking
+            $mainMessage = "Booking deleted successfully!";
+        }
+        // Reload cabins from database after updating
+        $bookings = [];
+        $result = $connect->query("SELECT * FROM booking ORDER BY booking_at DESC");
+        // Get each data pair of rows
+        while ($row = $result->fetch_assoc()) {
+            $bookings[] = $row;
+        }
     }
 }
 // Close connection
@@ -424,10 +430,10 @@ $connect->close();
         <div class="booking-details">
             <h2>Booking Details</h2>
             <?php if (!empty($mainMessage)): ?>
-                <p class="message"><?php echo $mainMessage; ?></p>
+                <p class="message"><?php echo htmlspecialchars($mainMessage); ?></p>
             <?php endif; ?>
             <?php if (!empty($messageErr)): ?>
-                <p class="messageErr"><?php echo $messageErr; ?></p>
+                <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
             <?php endif; ?>
             <div class="table-container">
                 <table>
@@ -450,7 +456,8 @@ $connect->close();
                         <?php foreach ($bookings as $i => $booking): ?>
                             <tr>
                                 <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
-                                    <input type="hidden" name="id" value="<?php echo $booking['id']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($booking['id']); ?>">
                                     <td><input type="text" name="first_name"
                                             value="<?php echo htmlspecialchars($booking['first_name']); ?>"
                                             placeholder="First Name">

@@ -1,9 +1,14 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Include connection to database
 include 'database_connect.php';
 
+$messageErr = "";
 // Declare variables and get data from session
 $arrival = $_SESSION['arrival'] ?? '';
 $departure = $_SESSION['departure'] ?? '';
@@ -12,35 +17,71 @@ $number_of_guest = $_SESSION['number_of_guest'] ?? '';
 $first_name = $last_name = $phone = $email = $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get input values for all booking variables
-    $arrival = $_POST['arrival'] ?? '';
-    $departure = $_POST['departure'] ?? '';
-    $cabin_type = $_POST['cabin_type'] ?? '';
-    $number_of_guest = $_POST['number_of_guest'] ?? '';
-    $first_name = trim($_POST['booking-first-name'] ?? '');
-    $last_name = trim($_POST['booking-last-name'] ?? '');
-    $phone = trim($_POST['booking-phone'] ?? '');
-    $email = trim($_POST['booking-email'] ?? '');
-    $message = trim($_POST['booking-message'] ?? '');
-    // Save inputs values to session
-    $_SESSION['arrival'] = $arrival;
-    $_SESSION['departure'] = $departure;
-    $_SESSION['cabin_type'] = $cabin_type;
-    $_SESSION['number_of_guest'] = $number_of_guest;
-    $_SESSION['first_name'] = $first_name;
-    $_SESSION['last_name'] = $last_name;
-    $_SESSION['phone'] = $phone;
-    $_SESSION['email'] = $email;
-    $_SESSION['message'] = $message;
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $messageErr = "Security validation failed. Please try again.";
+    } else {
+        // Get input values for all booking variables
+        $arrival = $_POST['arrival'] ?? '';
+        $departure = $_POST['departure'] ?? '';
+        $cabin_type = $_POST['cabin_type'] ?? '';
+        $number_of_guest = $_POST['number_of_guest'] ?? '';
+        $first_name = trim($_POST['booking-first-name'] ?? '');
+        $last_name = trim($_POST['booking-last-name'] ?? '');
+        $phone = trim($_POST['booking-phone'] ?? '');
+        $email = trim($_POST['booking-email'] ?? '');
+        $message = trim($_POST['booking-message'] ?? '');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $messageErr = "Invalid email format";
+        } else {
+            // Save inputs values to session
+            $_SESSION['arrival'] = $arrival;
+            $_SESSION['departure'] = $departure;
+            $_SESSION['cabin_type'] = $cabin_type;
+            $_SESSION['number_of_guest'] = $number_of_guest;
+            $_SESSION['first_name'] = $first_name;
+            $_SESSION['last_name'] = $last_name;
+            $_SESSION['phone'] = $phone;
+            $_SESSION['email'] = $email;
+            $_SESSION['message'] = $message;
 
-    if (isset($_POST['cabin_type']) && isset($_POST['arrival']) && isset($_POST['departure']) && isset($_POST['booking-first-name']) && isset($_POST['booking-last-name']) && isset($_POST['booking-phone']) && isset($_POST['number_of_guest']) && isset($_POST['booking-email'])) {
-        $bookingTable = $connect->prepare("INSERT INTO booking (first_name, last_name, arrival, departure, cabin_type, phone, email, number_of_guest, message, booking_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-        $bookingTable->bind_param("sssssssis", $first_name, $last_name, $arrival, $departure, $cabin_type, $phone, $email, $number_of_guest, $message);
-        $bookingTable->execute();
-        $bookingID = $connect->insert_id;
-        $bookingTable->close();
-        header("Location: confirmed_booking.php");
-        exit;
+            if (isset($_POST['cabin_type']) && isset($_POST['arrival']) && isset($_POST['departure']) && isset($_POST['booking-first-name']) && isset($_POST['booking-last-name']) && isset($_POST['booking-phone']) && isset($_POST['number_of_guest']) && isset($_POST['booking-email'])) {
+                $bookingTable = $connect->prepare("INSERT INTO booking (first_name, last_name, arrival, departure, cabin_type, phone, email, number_of_guest, message, booking_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+                $bookingTable->bind_param("sssssssis", $first_name, $last_name, $arrival, $departure, $cabin_type, $phone, $email, $number_of_guest, $message);
+                $bookingTable->execute();
+                $bookingID = $connect->insert_id;
+                $bookingTable->close();
+
+                // Mail Notification
+                $headers = "From: noreply@sunnyspotholidays.com.au\r\n";
+                $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
+
+                $safeName = filter_var($first_name . ' ' . $last_name, FILTER_SANITIZE_SPECIAL_CHARS);
+                $safeArrival = filter_var(date('d/m/Y', strtotime($arrival)), FILTER_SANITIZE_SPECIAL_CHARS);
+                $safeDeparture = filter_var(date('d/m/Y', strtotime($departure)), FILTER_SANITIZE_SPECIAL_CHARS);
+                $safeCabinType = filter_var($cabin_type, FILTER_SANITIZE_SPECIAL_CHARS);
+                $safeNumberOfGuest = filter_var($number_of_guest, FILTER_SANITIZE_NUMBER_INT);
+                $safeMessage = filter_var($message, FILTER_SANITIZE_SPECIAL_CHARS);
+                mail(
+                    'zsilverstonez@gmail.com',
+                    'New Booking - Sunny Spot Holidays',
+                    'A new booking has been received at Sunny Spot Holidays! 
+
+Guest: ' . $safeName . '
+Check-in: ' . $safeArrival . '
+Check-out: ' . $safeDeparture . '
+Cabin Type: ' . $safeCabinType . '
+Number of Guest: ' . $safeNumberOfGuest . '
+Message: ' . (empty($safeMessage) ? 'None' : $safeMessage) . '
+
+Please log in to the admin dashboard to view full details and manage this booking.
+
+This is an automated notification from sunnyspotholidays.com.au',
+                    $headers
+                );
+                header("Location: confirmed_booking.php");
+                exit;
+            }
+        }
     }
 }
 ?>
@@ -320,6 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
         <form id="booking-form" action="" method="post" class="booking">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <h2 class="booking-header">Booking Details</h2>
             <div class="booked">
                 <h3>Your Booking:</h3>
@@ -401,6 +443,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </fieldset>
         </form>
         <div class="confirm-booking">
+            <?php if (!empty($messageErr)): ?>
+                <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
+            <?php endif; ?>
             <div class="confirm-booking-content">
                 <h2>Confirm Your Booking</h2>
                 <p class="booked-cabin"></p>

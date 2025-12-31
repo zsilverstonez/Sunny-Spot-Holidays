@@ -1,6 +1,9 @@
     <?php
     session_start();
-
+    // Generate random csrf token
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
     // Only allow logged-in users
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         header("Location: login.php");
@@ -34,64 +37,68 @@
     $messageCabinSuccess = "";
     // Handle form submission
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        // INSERT new cabin
-        if (!isset($_POST['cabinID']) && isset($_POST['cabinType'])) {
-            $cabinType = $_POST['cabinType'];
-            $cabinDescription = $_POST['cabinDescription'];
-            $pricePerNight = (float)$_POST['pricePerNight'];
-            $pricePerWeek = (float)$_POST['pricePerWeek'];
-            if ($pricePerNight < 0 || $pricePerWeek < 0) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Prices must not be negative.";
-            } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Prices must be a whole number.";
-            } elseif ($pricePerWeek > $pricePerNight * 5) {
-                $messageCabin = "Add new cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
-            }
-            if (isset($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-                $fileType = $_FILES['photo']['type'];
-                $fileSize = $_FILES['photo']['size'];
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $messageErr = "Security validation failed. Please try again.";
+        } else {
+            // INSERT new cabin
+            if (!isset($_POST['cabinID']) && isset($_POST['cabinType'])) {
+                $cabinType = $_POST['cabinType'];
+                $cabinDescription = $_POST['cabinDescription'];
+                $pricePerNight = (float)$_POST['pricePerNight'];
+                $pricePerWeek = (float)$_POST['pricePerWeek'];
+                if ($pricePerNight < 0 || $pricePerWeek < 0) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Prices must not be negative.";
+                } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Prices must be a whole number.";
+                } elseif ($pricePerWeek > $pricePerNight * 5) {
+                    $messageCabin = "Add new cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
+                }
+                if (isset($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
+                    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    $fileType = $_FILES['photo']['type'];
+                    $fileSize = $_FILES['photo']['size'];
 
-                if (!in_array($fileType, $allowedTypes)) {
-                    $messageCabin = "Add new cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
-                } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB
-                    $messageCabin = "Add new cabin unsuccessful!<br>Photo size must be less than 2MB.";
-                } else {
-                    $uploadPhoto = "images/";
-                    $photo = basename($_FILES['photo']['name']);
-                    move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPhoto . $photo); // move_uploaded_file: move the photo to file. tmp_name: temporary name of the uploaded file given by PHP. If not use this temporary file, and just rely on the original filename (name), two or more users uploading files with the same name could overwrite each other’s files.
-                }
-            } else {
-                $photo = 'testCabin.jpg'; // default/fallback
-            }
-            if (empty($messageCabin)) {
-                // Connect to database and prepare statement 
-                $cabinsTable = $connect->prepare(
-                    "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo) VALUES (?, ?, ?, ?, ?)"
-                );
-                // Declare variable types
-                $cabinsTable->bind_param("ssdds", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo);
-                // Execute getting cabins data
-                $cabinsTable->execute();
-                // Get new id for the new cabin
-                $newCabinID = $connect->insert_id;
-                // Insert inclusions list for the new cabin
-                if (!empty($_POST['incID'])) {
-                    // Use foreach as each cabin can have more than one inclusion
-                    foreach ($_POST['incID'] as $incID) {
-                        $incID = (int)$incID;
-                        $cabinInclusion = $connect->prepare(
-                            "INSERT INTO cabin_inclusion (cabinID, incID) VALUES ( ?, ?)"
-                        );
-                        $cabinInclusion->bind_param("ii", $newCabinID, $incID);
-                        $cabinInclusion->execute();
-                        $cabinInclusion->close();
+                    if (!in_array($fileType, $allowedTypes)) {
+                        $messageCabin = "Add new cabin unsuccessful!<br>Photo must be JPG, JPEG, or PNG.";
+                    } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB
+                        $messageCabin = "Add new cabin unsuccessful!<br>Photo size must be less than 2MB.";
+                    } else {
+                        $uploadPhoto = "images/";
+                        $photo = basename($_FILES['photo']['name']);
+                        move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPhoto . $photo); // move_uploaded_file: move the photo to file. tmp_name: temporary name of the uploaded file given by PHP. If not use this temporary file, and just rely on the original filename (name), two or more users uploading files with the same name could overwrite each other’s files.
                     }
+                } else {
+                    $photo = 'testCabin.jpg'; // default/fallback
                 }
-                // Close getting cabins data 
-                $cabinsTable->close();
-                // Successful updating message
-                $messageCabinSuccess = "New cabin inserted successfully!";
+                if (empty($messageCabin)) {
+                    // Connect to database and prepare statement 
+                    $cabinsTable = $connect->prepare(
+                        "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo) VALUES (?, ?, ?, ?, ?)"
+                    );
+                    // Declare variable types
+                    $cabinsTable->bind_param("ssdds", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo);
+                    // Execute getting cabins data
+                    $cabinsTable->execute();
+                    // Get new id for the new cabin
+                    $newCabinID = $connect->insert_id;
+                    // Insert inclusions list for the new cabin
+                    if (!empty($_POST['incID'])) {
+                        // Use foreach as each cabin can have more than one inclusion
+                        foreach ($_POST['incID'] as $incID) {
+                            $incID = (int)$incID;
+                            $cabinInclusion = $connect->prepare(
+                                "INSERT INTO cabin_inclusion (cabinID, incID) VALUES ( ?, ?)"
+                            );
+                            $cabinInclusion->bind_param("ii", $newCabinID, $incID);
+                            $cabinInclusion->execute();
+                            $cabinInclusion->close();
+                        }
+                    }
+                    // Close getting cabins data 
+                    $cabinsTable->close();
+                    // Successful updating message
+                    $messageCabinSuccess = "New cabin inserted successfully!";
+                }
             }
         }
     }
@@ -603,23 +610,24 @@
                         aria-label="Cabin Selection">
                         <option value="" disabled selected>Select a cabin type</option>
                         <?php foreach ($cabins as $cabin): ?>
-                            <option value="<?php echo $cabin['cabinID']; ?>">
+                            <option value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
                                 <?php echo htmlspecialchars($cabin['cabinType']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <?php if (!empty($messageCabin)): ?>
-                    <p class="message"><?php echo $messageCabin; ?></p>
+                    <p class="message"><?php echo htmlspecialchars($messageCabin); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($messageCabinSuccess)): ?>
-                    <p class="messageSuccess"><?php echo $messageCabinSuccess; ?></p>
+                    <p class="messageSuccess"><?php echo htmlspecialchars($messageCabinSuccess); ?></p>
                 <?php endif; ?>
                 <!-- ADD NEW CABIN -->
                 <div class="add-new-cabin">
                     <form method="POST" enctype="multipart/form-data"
                         onsubmit="return confirm('Are you sure about the change?');">
                         <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <div class="cabin-top">
                             <div class="form-divider">
                                 <label>Cabin Type: </label>
@@ -677,7 +685,7 @@
                                         <tr>
                                             <td><?php echo htmlspecialchars($inclusion['incName']) ?></td>
                                             <td><input type="checkbox" name="incID[]"
-                                                    value="<?php echo $inclusion['incID']; ?>">
+                                                    value="<?php echo htmlspecialchars($inclusion['incID']); ?>">
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -690,12 +698,14 @@
                 <!-- EXISTING CABINS -->
                 <?php foreach ($cabins as $cabin): ?>
                     <!-- data-id is an HTML attribute that can hold a dynamic id for a loop, while, for to use in Javascript-->
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <div class="cabin-display" data-id="<?php echo $cabin['cabinID']; ?>">
                         <form method="POST" enctype="multipart/form-data"
                             onsubmit="return confirm('Are you sure about the change?');">
                             <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
                             <div class="cabin-top">
-                                <input type="hidden" name="cabinID[]" value="<?php echo $cabin['cabinID']; ?>">
+                                <input type="hidden" name="cabinID[]"
+                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
                                 <div class="form-divider">
                                     <label>Cabin Type: </label>
                                     <input type="text" name="cabinType[]"
@@ -768,8 +778,10 @@
                                                 <td><?php echo htmlspecialchars($inclusion['incName']); ?></td>
                                                 <td>
                                                     <!--name="incID[<?php echo $cabin['cabinID']; ?>][]" means getting the id of cabin in cabins to insert inclusion, [] at the end to create an array so each cabin can have more than one inclusion-->
-                                                    <input type="checkbox" name="incID[<?php echo $cabin['cabinID']; ?>][]"
-                                                        value="<?php echo $inclusion['incID']; ?>" <?php echo $checked; ?>>
+                                                    <input type="checkbox"
+                                                        name="incID[<?php echo htmlspecialchars($cabin['cabinID']); ?>][]"
+                                                        value="<?php echo htmlspecialchars($inclusion['incID']); ?>"
+                                                        <?php echo htmlspecialchars($checked); ?>>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -777,12 +789,14 @@
                                 </div>
                             </div>
                             <div class="button-wrapper"><button type="submit" class="update-button"
-                                    value="<?php echo $cabin['cabinID']; ?>">Update
+                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Update
                                     Cabin</button></div>
                         </form>
                         <a class="back" href="admin_dashboard_cabin.php">Back</a>
                         <form method="POST" onsubmit="return confirm('Are you sure about deleting this cabin?');">
-                            <input type="hidden" name="delete_id" value="<?php echo $cabin['cabinID']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="delete_id"
+                                value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
                             <div class="button-wrapper"><button type="submit" class="delete-button"
                                     value="<?php echo $cabin['cabinID']; ?>">Delete Cabin</button></div>
                         </form>

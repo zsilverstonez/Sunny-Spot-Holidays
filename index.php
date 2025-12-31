@@ -1,5 +1,9 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // Include connection to database
 include 'database_connect.php';
 // Load cabins from database
@@ -32,38 +36,75 @@ foreach ($cabinInclusion as $cabinID => $incIDs) {
     $cabinInclusionNames[$cabinID] = $inclusionName; // use [] as $cabinInclusionNames contains all cabins with their inclusions not a single cabin with its inclusions
 }
 $bookingError = "";
+$contactError = "";
 // Connect booking to booking.php
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['form_type']) && $_POST['form_type'] === 'booking') {
-        date_default_timezone_set('Australia/Sydney');
-        $today = date('Y-m-d');
-        $arrival = $_POST['arrival'];
-        $departure = $_POST['departure'];
-        if ($departure < $arrival) {
-            $bookingError = "Please select a valid date";
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $bookingError = "Security validation failed. Please try again.";
         } else {
-            $_SESSION['arrival'] = $_POST['arrival'];
-            $_SESSION['departure'] = $_POST['departure'];
-            $_SESSION['cabin_type'] = $_POST['cabin_type'];
-            $_SESSION['number_of_guest'] = $_POST['number_of_guest'];
-            header("Location: booking.php");
-            exit;
+            date_default_timezone_set('Australia/Sydney');
+            $today = date('Y-m-d');
+            $arrival = $_POST['arrival'];
+            $departure = $_POST['departure'];
+            if ($departure < $arrival) {
+                $bookingError = "Please select a valid date";
+            } else {
+                $_SESSION['arrival'] = $_POST['arrival'];
+                $_SESSION['departure'] = $_POST['departure'];
+                $_SESSION['cabin_type'] = $_POST['cabin_type'];
+                $_SESSION['number_of_guest'] = $_POST['number_of_guest'];
+                header("Location: booking.php");
+                exit;
+            }
         }
     } elseif (isset($_POST['form_type']) && $_POST['form_type'] === 'contact') {
-        $name = trim($_POST['contact-name'] ?? '');
-
-        $phone = trim($_POST['contact-phone'] ?? '');
-        $email = trim($_POST['contact-email'] ?? '');
-        $message = trim($_POST['contact-message'] ?? '');
-        $status = 'new';
-        if (!$name || !$phone || !$email || !$message) {
-            $receivedMessageErr = 'There is an error in submitting your message.<br>Please check and resubmit again.';
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $contactError = "Security validation failed. Please try again.";
         } else {
-            $contactTable = $connect->prepare("INSERT INTO contact (name, phone, email, message, status) VALUES (?,?,?,?,?)");
-            $contactTable->bind_param("sssss", $name, $phone, $email, $message, $status);
-            $contactTable->execute();
-            $receivedMessage = 'Thank you for contact us! We will get back to you as soon as possible.';
-            $contactTable->close();
+            $name = trim($_POST['contact-name'] ?? '');
+            $phone = trim($_POST['contact-phone'] ?? '');
+            $email = trim($_POST['contact-email'] ?? '');
+            $message = trim($_POST['contact-message'] ?? '');
+            $status = 'new';
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $contactErr = "Invalid email format";
+            } else {
+                if (!$name || !$phone || !$email || !$message) {
+                    $receivedMessageErr = 'There is an error in submitting your message.<br>Please check and resubmit again.';
+                } else {
+                    $contactTable = $connect->prepare("INSERT INTO contact (name, phone, email, message, status) VALUES (?,?,?,?,?)");
+                    $contactTable->bind_param("sssss", $name, $phone, $email, $message, $status);
+                    $contactTable->execute();
+                    $receivedMessage = 'Thank you for contact us! We will get back to you as soon as possible.';
+                    $contactTable->close();
+
+                    // Mail Notification
+                    $headers = "From: noreply@sunnyspotholidays.com.au\r\n";
+                    $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
+
+                    $safeName = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $safeEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
+                    $safePhone = filter_var($phone, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $safeMessage = filter_var($message, FILTER_SANITIZE_SPECIAL_CHARS);
+
+                    mail(
+                        'zsilverstonez@gmail.com',
+                        'New Contact - Sunny Spot Holidays',
+                        'A new contact has been received at Sunny Spot Holidays! 
+
+Guest: ' . $safeName . '
+Phone: ' . $safePhone . '
+Email: ' . $safeEmail . '
+Message: ' . $safeMessage . '
+
+Please log in to the admin dashboard to view full details and manage this contact.
+
+This is an automated notification from sunnyspotholidays.com.au',
+                        $headers
+                    );
+                }
+            }
         }
     }
 }
@@ -475,6 +516,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         width: 100%;
         max-width: 500px;
         border: none;
+    }
+
+    p.contactError {
+        color: red;
+        text-align: center;
+        margin-bottom: -1rem;
     }
 
     .contact input,
@@ -1103,6 +1150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <main>
         <img src="images/background.jpg" alt="front view of cabins" class="background">
         <form action="" method="POST" class="booking">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <input type="hidden" name="form_type" value="booking">
             <div class="date-wrapper">
                 <?php
@@ -1182,23 +1230,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <?php foreach ($cabins as $cabin): ?>
                     <div class="cabin">
                         <div class="cabin-content">
-                            <div class="image"><img src="images/<?php echo $cabin["photo"]; ?>"
-                                    alt="<?php echo $cabin["cabinType"]; ?>"></div>
+                            <div class="image"><img src="images/<?php echo htmlspecialchars($cabin["photo"]); ?>"
+                                    alt="<?php echo htmlspecialchars($cabin["cabinType"]); ?>"></div>
                             <div class="cabin-info">
                                 <div class="cabin-header">
                                     <div class="cabin-details">
-                                        <p class="cabin-type"><?php echo $cabin["cabinType"]; ?></p>
+                                        <p class="cabin-type"><?php echo htmlspecialchars($cabin["cabinType"]); ?></p>
                                     </div>
                                     <div class="cabin-prices">
                                         <p><span class="price-number">AUD
-                                                $<?php echo $cabin["pricePerNight"]; ?></span>/night
+                                                $<?php echo htmlspecialchars($cabin["pricePerNight"]); ?></span>/night
                                         </p>
                                         <p><span class="price-number">AUD
-                                                $<?php echo $cabin["pricePerWeek"]; ?></span>/week
+                                                $<?php echo htmlspecialchars($cabin["pricePerWeek"]); ?></span>/week
                                         </p>
                                     </div>
                                 </div>
-                                <p class="cabin-description"><?php echo $cabin["cabinDescription"]; ?></p>
+                                <p class="cabin-description"><?php echo htmlspecialchars($cabin["cabinDescription"]); ?>
+                                </p>
                                 <?php if (!empty($cabinInclusionNames[$cabin['cabinID']])) : ?>
                                 <p class="cabin-inclusion"><span class="inclusion">
                                         Inclusions: </span><?php echo implode(
@@ -1239,9 +1288,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p>Friendly, Exceptional Service</p>
                 </div>
             </div>
-            <form id="contact-form" action="contact.php" method="post">
+            <form id="contact-form" action="contact" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <?php if (!empty($contactError)): ?>
+                <p class="contactError"><?php echo htmlspecialchars($contactError); ?></p>
+                <?php endif; ?>
                 <input type="hidden" name="form_type" value="contact">
-
                 <div class="contact-divider">
                     <fieldset class="contact">
                         <h2 class="contact-header">Contact Us</h2>

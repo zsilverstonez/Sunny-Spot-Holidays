@@ -1,5 +1,9 @@
 <?php
 session_start();
+// Generate random csrf token
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -22,46 +26,49 @@ while ($row = $result->fetch_assoc()) $contacts[] = $row;
 $message = "";
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['id'])) {
-    $id = (int)$_POST['id'];
-    $action = $_POST['action'];
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-    $msg = $_POST['message'];
-    $status = $_POST['status'];
-    // Update form
-    if ($action === 'update') {
-        if ($id > 0) {
-            $contactTable = $connect->prepare("UPDATE contact SET name=?, phone=?, email=?, message=?, status=? WHERE id=?");
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $messageErr = "Security validation failed. Please try again.";
+    } else {
+        $id = (int)$_POST['id'];
+        $action = $_POST['action'];
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email'];
+        $msg = $_POST['message'];
+        $status = $_POST['status'];
+        // Update form
+        if ($action === 'update') {
+            if ($id > 0) {
+                $contactTable = $connect->prepare("UPDATE contact SET name=?, phone=?, email=?, message=?, status=? WHERE id=?");
+                // Declare variable types
+                $contactTable->bind_param("sssssi", $name, $phone, $email, $msg, $status, $id);
+                // Execute getting contacts data
+                $contactTable->execute();
+                // Close getting contacts data 
+                $contactTable->close();
+                // Successful updating message
+                $message = "Contact updated successfully!";
+            }
+        }
+        // Delete form
+        elseif ($action === 'delete') {
+            $contactTable = $connect->prepare("DELETE FROM contact WHERE id=?");
             // Declare variable types
-            $contactTable->bind_param("sssssi", $name, $phone, $email, $msg, $status, $id);
+            $contactTable->bind_param("i", $id);
             // Execute getting contacts data
             $contactTable->execute();
             // Close getting contacts data 
             $contactTable->close();
-            // Successful updating message
-            $message = "Contact updated successfully!";
+            // Successful deleting message
+            $message = "Contact deleted successfully!";
         }
-    }
-    // Delete form
-    elseif ($action === 'delete') {
-        $contactTable = $connect->prepare("DELETE FROM contact WHERE id=?");
-        // Declare variable types
-        $contactTable->bind_param("i", $id);
-        // Execute getting contacts data
-        $contactTable->execute();
-        // Close getting contacts data 
-        $contactTable->close();
-        // Successful deleting message
-        $message = "Contact deleted successfully!";
-    }
 
-
-    // Reload contacts
-    $contacts = [];
-    $result = $connect->query("SELECT * FROM contact ORDER BY submitted_at DESC");
-    while ($row = $result->fetch_assoc()) {
-        $contacts[] = $row;
+        // Reload contacts
+        $contacts = [];
+        $result = $connect->query("SELECT * FROM contact ORDER BY submitted_at DESC");
+        while ($row = $result->fetch_assoc()) {
+            $contacts[] = $row;
+        }
     }
 }
 $connect->close();
@@ -233,11 +240,16 @@ $connect->close();
             background-color: rgba(0, 0, 0, 1);
         }
 
-        .message {
+        .message,
+        .messageErr {
             color: green;
             text-align: center;
             font-weight: bold;
             margin: -1rem 0 1rem 0;
+        }
+
+        .messageErr {
+            color: red;
         }
 
         .logout {
@@ -434,7 +446,10 @@ $connect->close();
         <div class="contact-details">
             <h2>Contact Details</h2>
             <?php if (!empty($message)): ?>
-                <p class="message"><?php echo $message; ?></p>
+                <p class="message"><?php echo htmlspecialchars($message); ?></p>
+            <?php endif; ?>
+            <?php if (!empty($messageErr)): ?>
+                <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
             <?php endif; ?>
             <div class="table-container">
                 <table>
@@ -454,7 +469,8 @@ $connect->close();
                         <?php foreach ($contacts as $i => $contact): ?>
                             <tr>
                                 <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
-                                    <input type="hidden" name="id" value="<?php echo $contact['id']; ?>">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($contact['id']); ?>">
                                     <td><input type="text" name="name"
                                             value="<?php echo htmlspecialchars($contact['name']); ?>"
                                             placeholder="Full Name">
