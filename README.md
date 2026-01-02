@@ -40,6 +40,5 @@ Note: This is a mock website created as a portfolio project.
 4. Update email.php with your SMTP details
 5. Deploy to web server
 
----
 
 
