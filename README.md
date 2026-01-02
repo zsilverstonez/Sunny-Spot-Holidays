@@ -42,11 +42,4 @@ Note: This is a mock website created as a portfolio project.
 
 ---
 
-## Author
 
-Blake Bui
-Portfolio: sunnyspotholidays.com.au
-GitHub: @zsilverstonez
-
-Certificate IV in Information Technology - Web Development
-TAFE NSW
