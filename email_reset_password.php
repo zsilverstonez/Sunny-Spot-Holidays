@@ -8,9 +8,6 @@ if (!isset($_SESSION['csrf_token'])) {
 include 'database_connect.php';
 require 'vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -242,5 +239,6 @@ $connect->close();
     </footer>
     <script src="script.js"></script>
 </body>
+
 
 </html>
