@@ -1,12 +1,15 @@
 <?php
-// Database connection: declare connection variables
-$servername = "localhost";
-$username = "root";
-$password = "";
-$sunny_spot = "sunnyspot_full";
-// Connect to database
-$connect = new mysqli($servername, $username, $password, $sunny_spot);
-// Error connection
+require __DIR__ . '/vendor/autoload.php';
+
+Dotenv\Dotenv::createImmutable(__DIR__)->load();
+
+$connect = new mysqli(
+    $_ENV['DB_HOST'],
+    $_ENV['DB_USER'],
+    $_ENV['DB_PASS'] ?? '',
+    $_ENV['DB_NAME']
+);
+
 if ($connect->connect_error) {
     error_log("DB Connection failed: " . $connect->connect_error);
     die("Service temporarily unavailable. Please try again later.");
