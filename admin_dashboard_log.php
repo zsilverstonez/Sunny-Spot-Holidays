@@ -42,7 +42,6 @@ $connect->close();
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&display=swap"
         rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
@@ -316,6 +315,8 @@ $connect->close();
         <nav>
             <ul>
                 <li class="nav-booking"><a href="admin_dashboard_booking.php">Booking</a></li>
+                <li class="nav-availability"><a href="admin_dashboard_availability.php">Availability</a>
+                </li>
                 <li class="nav-contact"><a href="admin_dashboard_contact.php">Contact</a></li>
                 <li class="nav-cabin"><a href="admin_dashboard_cabin.php">Cabin</a></li>
                 <li class="nav-inclusion"><a href="admin_dashboard_inclusion.php">Inclusion</a></li>
@@ -348,29 +349,26 @@ $connect->close();
                     <tbody>
                         <?php foreach ($logs as $i => $log): ?>
                             <tr>
-                                <form method="POST" onsubmit="return confirm('Are you sure about the change?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                                    <input type="hidden" name="logID"
-                                        value="<?php echo htmlspecialchars($log['logID']); ?>">
-                                    <td><input type="text" name="staffID"
-                                            value="<?php echo htmlspecialchars($log['staffID']); ?>" readonly>
-                                    </td>
-                                    <td><input type="text" name="username"
-                                            value="<?php echo htmlspecialchars($log['username']); ?>" readonly></td>
-                                    <!-- Convert dateTime -->
-                                    <?php
-                                    $login_time = date("H:i:s \\o\\n d-m-Y", strtotime($log['loginDateTime']));
-                                    // Display online if the user is online
-                                    // Use date to reformat the display of date, strtotime to convert a string to a timestamp
-                                    $logout_time = (!empty($log['logoutDateTime']) && $log['logoutDateTime'] !== "0000-00-00 00:00:00") ? date("H:i:s \\o\\n d-m-Y", strtotime($log['logoutDateTime'])) : 'Online';
-                                    ?>
-                                    <td><input type="text" name="loginDateTime"
-                                            value="<?php echo htmlspecialchars($login_time); ?>" readonly>
-                                    </td>
-                                    <td><input type="text" name="logoutDateTime"
-                                            value="<?php echo htmlspecialchars($logout_time); ?>" readonly>
-                                    </td>
-                                </form>
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                                <input type="hidden" name="logID" value="<?php echo htmlspecialchars($log['logID']); ?>">
+                                <td><input type="text" name="staffID"
+                                        value="<?php echo htmlspecialchars($log['staffID']); ?>" readonly>
+                                </td>
+                                <td><input type="text" name="username"
+                                        value="<?php echo htmlspecialchars($log['username']); ?>" readonly></td>
+                                <!-- Convert dateTime -->
+                                <?php
+                                $login_time = date("H:i:s \\o\\n d-m-Y", strtotime($log['loginDateTime']));
+                                // Display online if the user is online
+                                // Use date to reformat the display of date, strtotime to convert a string to a timestamp
+                                $logout_time = (!empty($log['logoutDateTime']) && $log['logoutDateTime'] !== "0000-00-00 00:00:00") ? date("H:i:s \\o\\n d-m-Y", strtotime($log['logoutDateTime'])) : 'Online';
+                                ?>
+                                <td><input type="text" name="loginDateTime"
+                                        value="<?php echo htmlspecialchars($login_time); ?>" readonly>
+                                </td>
+                                <td><input type="text" name="logoutDateTime"
+                                        value="<?php echo htmlspecialchars($logout_time); ?>" readonly>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
