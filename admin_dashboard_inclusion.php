@@ -96,7 +96,6 @@ $connect->close();
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&display=swap"
         rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
@@ -452,6 +451,8 @@ $connect->close();
         <nav>
             <ul>
                 <li class="nav-booking"><a href="admin_dashboard_booking.php">Booking</a></li>
+                <li class="nav-availability"><a href="admin_dashboard_availability.php">Availability</a>
+                </li>
                 <li class="nav-contact"><a href="admin_dashboard_contact.php">Contact</a></li>
                 <li class="nav-cabin"><a href="admin_dashboard_cabin.php">Cabin</a></li>
                 <li class="nav-inclusion"><a href="admin_dashboard_inclusion.php" class="active">Inclusion</a></li>
