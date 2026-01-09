@@ -49,6 +49,7 @@
                 $cabinDescription = $_POST['cabinDescription'];
                 $pricePerNight = $_POST['pricePerNight'];
                 $pricePerWeek = $_POST['pricePerWeek'];
+
                 if ($pricePerNight < 0 || $pricePerWeek < 0) {
                     $messageCabin = "Add new cabin unsuccessful!<br>Prices must not be negative.";
                 } elseif (fmod($pricePerNight, 1) != 0 || fmod($pricePerWeek, 1) != 0) {
@@ -56,6 +57,12 @@
                 } elseif ($pricePerWeek > $pricePerNight * 5) {
                     $messageCabin = "Add new cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
                 }
+
+                $quantity = $_POST['quantity'];
+                if ($quantity <= 0) {
+                    $messageCabin = "Quantity of cabin must at least 1";
+                }
+
                 if (isset($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
                     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
                     $fileType = $_FILES['photo']['type'];
@@ -78,10 +85,10 @@
                 if (empty($messageCabin) && $uploadPhoto) {
                     // Connect to database and prepare statement 
                     $cabinsTable = $connect->prepare(
-                        "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo) VALUES (?, ?, ?, ?, ?)"
+                        "INSERT INTO cabin (cabinType, cabinDescription, pricePerNight, pricePerWeek, photo, quantity) VALUES (?, ?, ?, ?, ?, ?)"
                     );
                     // Declare variable types
-                    $cabinsTable->bind_param("ssdds", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo);
+                    $cabinsTable->bind_param("ssddsi", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo, $quantity);
                     // Execute getting cabins data
                     $cabinsTable->execute();
                     // Get new id for the new cabin
@@ -123,6 +130,12 @@
                     $messageCabin = "Update cabin unsuccessful!<br>Price per week cannot be more than 5 times the price per night.";
                     $uploadPhoto = false;
                 }
+
+                $quantity = $_POST['quantity'][$index];
+                if ($quantity <= 0) {
+                    $messageCabin = "Quantity of cabin must at least 1";
+                }
+
                 if (isset($_FILES['photo']['name'][$index]) && $_FILES['photo']['error'][$index] == 0) {
                     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
                     $fileType = $_FILES['photo']['type'][$index];
@@ -148,7 +161,7 @@
                         // Connect to database and prepare statement 
                         $cabinsTable = $connect->prepare(
                             "UPDATE cabin 
-            SET cabinType=?, cabinDescription=?, pricePerNight=?, pricePerWeek=?, photo=? 
+            SET cabinType=?, cabinDescription=?, pricePerNight=?, pricePerWeek=?, photo=?, quantity=? 
             WHERE cabinID=?"
                         );
                         // To update cabin_inclusion table, because it is a bridge between cabin table  and inclusion table, so the best way is to delete all existing inclusions then insert new ones
@@ -167,7 +180,7 @@
                             }
                         }
                         // Declare variable types
-                        $cabinsTable->bind_param("ssddsi", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo, $cabinID);
+                        $cabinsTable->bind_param("ssddsii", $cabinType, $cabinDescription, $pricePerNight, $pricePerWeek, $photo, $quantity, $cabinID);
                         // Execute getting cabins data
                         $cabinsTable->execute();
                         // Close getting cabins data 
@@ -246,7 +259,6 @@
             href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&display=swap"
             rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link
             href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
             rel="stylesheet">
@@ -356,7 +368,6 @@
                 box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
                 border-radius: 6px;
                 padding: 0.7rem;
-
             }
 
             .cabin-top {
@@ -405,7 +416,6 @@
                 box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
                 border-radius: 6px;
                 padding: 1rem;
-
             }
 
             .inclusion {
@@ -598,6 +608,8 @@
             <nav>
                 <ul>
                     <li class="nav-booking"><a href="admin_dashboard_booking.php">Booking</a></li>
+                    <li class="nav-availability"><a href="admin_dashboard_availability.php">Availability</a>
+                    </li>
                     <li class="nav-contact"><a href="admin_dashboard_contact.php">Contact</a></li>
                     <li class="nav-cabin"><a href="admin_dashboard_cabin.php" class="active">Cabin</a></li>
                     <li class="nav-inclusion"><a href="admin_dashboard_inclusion.php">Inclusion</a></li>
@@ -644,8 +656,8 @@
                             </div>
                             <div class="form-divider">
                                 <label>Price Per Night: </label>
-                                <input type="number" id="pricePerNight" name="pricePerNight" step="1"
-                                    class="pricePerNight" required>
+                                <input class="price-input" type="number" id="pricePerNight" name="pricePerNight"
+                                    step="1" class="pricePerNight" required>
                                 <select class="newAdjustNight">
                                     <option value="" disabled selected>Auto Adjust</option>
                                     <option value="2">200%</option>
@@ -659,8 +671,8 @@
                             </div>
                             <div class="form-divider">
                                 <label>Price Per Week: </label>
-                                <input type="number" id="pricePerWeek" name="pricePerWeek" step="1" class="pricePerWeek"
-                                    required>
+                                <input class="price-input" type="number" id="pricePerWeek" name="pricePerWeek" step="1"
+                                    class="pricePerWeek" required>
                                 <select class="newAdjustWeek">
                                     <option value="" disabled selected>Auto Adjust</option>
                                     <option value="2">200%</option>
@@ -671,6 +683,10 @@
                                     <option value="0.75">75%</option>
                                     <option value="0.5">50%</option>
                                 </select>
+                            </div>
+                            <div class="form-divider">
+                                <label>Quantity: </label>
+                                <input type="number" id="quantity" name="quantity" step="1" class="quantity" required>
                             </div>
                             <div class="form-divider">
                                 <label>Photo: </label>
@@ -749,6 +765,11 @@
                                         <option value="0.75">75%</option>
                                         <option value="0.5">50%</option>
                                     </select>
+                                </div>
+                                <div class="form-divider">
+                                    <label>Quantity: </label>
+                                    <input type="number" id="quantity" name="quantity[]"
+                                        value="<?php echo htmlspecialchars($cabin['quantity']); ?>" step="1" required>
                                 </div>
                                 <div class="form-divider">
                                     <label>Photo: </label>
