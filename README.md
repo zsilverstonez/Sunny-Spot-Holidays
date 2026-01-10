@@ -36,8 +36,7 @@ Note: This is a mock website created as a portfolio project.
 
 1. Clone the repository
 2. Import database schema
-3. Upload database_connect.php with your database credentials
+3. Update env
 4. Upload images file
 5. Upload PHPMailer file
-6. Update email.php with your SMTP details
-7. Deploy to web server
+6. Deploy to web server
