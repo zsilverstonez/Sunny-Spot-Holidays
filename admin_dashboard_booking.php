@@ -17,9 +17,37 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 }
 // Include connection to database
 include 'database_connect.php';
+
+// Get filter parameters
+$filterDay = $_GET['filter_day'] ?? '';
+$filterMonth = $_GET['filter_month'] ?? '';
+$filterStatus = $_GET['filter_status'] ?? '';
+
+// Build query based on filters
+$query = "SELECT * FROM booking";
+$conditions = [];
+
+if (!empty($filterDay)) {
+    $conditions[] = "DATE(arrival) = '" . $connect->real_escape_string($filterDay) . "'";
+}
+
+if (!empty($filterMonth)) {
+    $conditions[] = "DATE_FORMAT(arrival, '%Y-%m') = '" . $connect->real_escape_string($filterMonth) . "'";
+}
+
+if (!empty($filterStatus)) {
+    $conditions[] = "status = '" . $connect->real_escape_string($filterStatus) . "'";
+}
+
+if (!empty($conditions)) {
+    $query .= " WHERE " . implode(' AND ', $conditions);
+}
+
+$query .= " ORDER BY bookingAt DESC";
+
 // Load bookings from database for display
 $bookings = [];
-$result = $connect->query("SELECT * FROM booking ORDER BY bookingAt DESC");
+$result = $connect->query($query);
 // Get each data pair of rows
 while ($row = $result->fetch_assoc()) {
     $bookings[] = $row;
@@ -43,20 +71,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'update') {
-            $first_name = $_POST['firstName'] ?? '';
-            $last_name = $_POST['lastName'] ?? '';
+            $firstName = $_POST['firstName'] ?? '';
+            $lastName = $_POST['lastName'] ?? '';
             $phone = $_POST['phone'] ?? '';
             $email = $_POST['email'] ?? '';
             $cabinType = $_POST['cabinType'] ?? '';
             $arrival = $_POST['arrival'] ?? '';
             $departure = $_POST['departure'] ?? '';
-            $number_of_guest = $_POST['numberOfGuest'] ?? 0;
+            $numberOfGuest = $_POST['numberOfGuest'] ?? 0;
             $message = $_POST['message'] ?? '';
             $status = $_POST['status'] ?? 'new';
 
             $bookingsTable = $connect->prepare(
-                "UPDATE booking 
-        SET firstName=?, lastName=?,phone=?, email=?, cabinType=?, arrival=?, departure=?, numberOfGuest=?, message=?, status=? 
+                "UPDATE booking
+        SET firstName=?, lastName=?,phone=?, email=?, cabinType=?, arrival=?, departure=?, numberOfGuest=?, message=?, status=?
         WHERE id=?"
             );
             // Declare variable types
@@ -170,7 +198,7 @@ $connect->close();
         }
 
         th:nth-child(5) {
-            width: 350px;
+            width: 300px;
         }
 
         th:nth-child(6),
@@ -183,10 +211,11 @@ $connect->close();
         }
 
         th:nth-child(10) {
-            width: 100px;
+            width: 130px;
         }
 
         input,
+        select,
         button {
             width: 100%;
             height: 100%;
@@ -194,6 +223,7 @@ $connect->close();
             font-size: 1rem;
             border: none;
             text-align: center;
+            text-align-last: center;
         }
 
         textarea {
@@ -203,7 +233,11 @@ $connect->close();
         }
 
         select {
-            border: none;
+            text-align: center;
+            text-align-last: center;
+        }
+
+        select option {
             text-align: center;
         }
 
@@ -231,13 +265,36 @@ $connect->close();
             color: black;
         }
 
+        #filter_status option[value="new"] {
+            color: red;
+        }
+
+        #filter_status option[value="confirmed"] {
+            color: green;
+        }
+
+        #filter_status option[value="checkedIn"] {
+            color: purple;
+        }
+
+        #filter_status option[value="checkedOut"] {
+            color: blue;
+        }
+
+        #filter_status option[value="cancelled"] {
+            color: red;
+        }
+
+        #filter_status option[value="archived"] {
+            color: black;
+        }
+
         #pageSlider {
             text-align: center;
             margin-top: 20px;
         }
 
         .page-button {
-            all: unset;
             border: none;
             border-radius: 50%;
             width: 25px;
@@ -250,6 +307,9 @@ $connect->close();
             font-family: roboto, sans-serif;
             padding: 0;
             font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .page-button:hover {
@@ -289,6 +349,88 @@ $connect->close();
             color: red;
         }
 
+        .filter-form {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(95, 62, 4, 0.05);
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: roboto, sans-serif;
+            width: 200px;
+        }
+
+        .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: roboto, sans-serif;
+            width: 200px;
+            cursor: pointer;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-button {
+            all: unset;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 115, 0, 0.77);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: roboto, sans-serif;
+            text-align: center;
+        }
+
+        .filter-button:hover {
+            background-color: rgba(255, 115, 0, 0.9);
+        }
+
+        .clear-filter {
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: roboto, sans-serif;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .clear-filter:hover {
+            background-color: rgba(0, 0, 0, 1);
+        }
+
         .logout {
             display: block;
             width: 100px;
@@ -315,7 +457,7 @@ $connect->close();
 
             .booking-details table {
                 border-collapse: collapse;
-                min-width: 1700px;
+                min-width: 1800px;
                 table-layout: auto;
             }
 
@@ -327,10 +469,16 @@ $connect->close();
 
             input,
             textarea,
+            select,
             button {
                 height: 50px;
                 padding: 0.2rem;
                 font-size: 1rem;
+            }
+
+            .filter-container input,
+            .filter-container select {
+                height: 30px;
             }
         }
     </style>
@@ -447,9 +595,27 @@ $connect->close();
                     else if (select.value === "cancelled") select.style.color = "red";
                     else select.style.color = "black";
                 };
-                updateColor(); // updating color
+                updateColor();
                 select.addEventListener("change", updateColor);
             });
+        });
+
+        // Set colors for filter status dropdown
+        document.addEventListener("DOMContentLoaded", () => {
+            const filterStatus = document.getElementById("filter_status");
+            if (filterStatus) {
+                const updateFilterColor = () => {
+                    if (filterStatus.value === "new") filterStatus.style.color = "red";
+                    else if (filterStatus.value === "confirmed") filterStatus.style.color = "green";
+                    else if (filterStatus.value === "checkedIn") filterStatus.style.color = "purple";
+                    else if (filterStatus.value === "checkedOut") filterStatus.style.color = "blue";
+                    else if (filterStatus.value === "cancelled") filterStatus.style.color = "red";
+                    else if (filterStatus.value === "archived") filterStatus.style.color = "black";
+                    else filterStatus.style.color = "black";
+                };
+                updateFilterColor();
+                filterStatus.addEventListener("change", updateFilterColor);
+            }
         });
     </script>
 </head>
@@ -488,6 +654,44 @@ $connect->close();
             <?php if (!empty($messageErr)): ?>
                 <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
             <?php endif; ?>
+
+            <form method="GET" action="" class="filter-form">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label for="filter_day">Filter by Day:</label>
+                        <input type="date" id="filter_day" name="filter_day"
+                            value="<?php echo htmlspecialchars($filterDay); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter_month">Filter by Month:</label>
+                        <input type="month" id="filter_month" name="filter_month"
+                            value="<?php echo htmlspecialchars($filterMonth); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter_status">Filter by Status:</label>
+                        <select id="filter_status" name="filter_status"
+                            style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; font-family: roboto, sans-serif; width: 200px;">
+                            <option value="">All Statuses</option>
+                            <option value="new" <?php echo ($filterStatus === 'new') ? 'selected' : ''; ?>>New</option>
+                            <option value="confirmed" <?php echo ($filterStatus === 'confirmed') ? 'selected' : ''; ?>>
+                                Confirmed</option>
+                            <option value="checkedIn" <?php echo ($filterStatus === 'checkedIn') ? 'selected' : ''; ?>>
+                                Checked In</option>
+                            <option value="checkedOut"
+                                <?php echo ($filterStatus === 'checkedOut') ? 'selected' : ''; ?>>Checked Out</option>
+                            <option value="cancelled" <?php echo ($filterStatus === 'cancelled') ? 'selected' : ''; ?>>
+                                Cancelled</option>
+                            <option value="archived" <?php echo ($filterStatus === 'archived') ? 'selected' : ''; ?>>
+                                Archived</option>
+                        </select>
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="filter-button">Apply Filter</button>
+                        <a href="admin_dashboard_booking.php" class="clear-filter">Clear Filter</a>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-container">
                 <table>
                     <thead>
