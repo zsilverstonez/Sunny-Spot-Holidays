@@ -18,9 +18,21 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 // Include connection to database
 include 'database_connect.php';
 
+// Get filter parameters
+$filterDay = $_GET['filter_day'] ?? '';
+$filterMonth = $_GET['filter_month'] ?? '';
+
+// Build date filter condition
+$dateCondition = "";
+if (!empty($filterDay)) {
+    $dateCondition = " AND DATE(submitted_at) = '" . $connect->real_escape_string($filterDay) . "'";
+} elseif (!empty($filterMonth)) {
+    $dateCondition = " AND DATE_FORMAT(submitted_at, '%Y-%m') = '" . $connect->real_escape_string($filterMonth) . "'";
+}
+
 // Load contacts from database
 $contacts = [];
-$result = $connect->query("SELECT * FROM contact ORDER BY submitted_at DESC");
+$result = $connect->query("SELECT * FROM contact WHERE 1=1" . $dateCondition . " ORDER BY submitted_at DESC");
 while ($row = $result->fetch_assoc()) $contacts[] = $row;
 // Declare empty variable
 $message = "";
@@ -66,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['id'])) {
 
         // Reload contacts
         $contacts = [];
-        $result = $connect->query("SELECT * FROM contact ORDER BY submitted_at DESC");
+        $result = $connect->query("SELECT * FROM contact WHERE 1=1" . $dateCondition . " ORDER BY submitted_at DESC");
         while ($row = $result->fetch_assoc()) {
             $contacts[] = $row;
         }
@@ -214,6 +226,9 @@ $connect->close();
             font-family: roboto, sans-serif;
             padding: 0;
             font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .page-button:hover {
@@ -270,6 +285,77 @@ $connect->close();
             background-color: rgba(70, 45, 3, 1);
         }
 
+        .filter-form {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(95, 62, 4, 0.05);
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+        }
+
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: roboto, sans-serif;
+            width: 200px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-button {
+            all: unset;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 115, 0, 0.77);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: roboto, sans-serif;
+            text-align: center;
+        }
+
+        .filter-button:hover {
+            background-color: rgba(255, 115, 0, 0.9);
+        }
+
+        .clear-filter {
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: roboto, sans-serif;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .clear-filter:hover {
+            background-color: rgba(0, 0, 0, 1);
+        }
+
         @media (max-width:1600px) {
             .table-container {
                 width: 100%;
@@ -294,6 +380,10 @@ $connect->close();
                 height: 50px;
                 padding: 0.2rem;
                 font-size: 1rem;
+            }
+
+            .filter-container input {
+                height: 30px;
             }
         }
     </style>
@@ -451,6 +541,26 @@ $connect->close();
             <?php if (!empty($messageErr)): ?>
                 <p class="messageErr"><?php echo htmlspecialchars($messageErr); ?></p>
             <?php endif; ?>
+
+            <form method="GET" action="" class="filter-form">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label for="filter_day">Filter by Day:</label>
+                        <input type="date" id="filter_day" name="filter_day"
+                            value="<?php echo htmlspecialchars($filterDay); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter_month">Filter by Month:</label>
+                        <input type="month" id="filter_month" name="filter_month"
+                            value="<?php echo htmlspecialchars($filterMonth); ?>">
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="filter-button">Apply Filter</button>
+                        <a href="staff_dashboard_contact.php" class="clear-filter">Clear Filter</a>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-container">
                 <table>
                     <thead>
