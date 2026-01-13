@@ -55,18 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
             moveSlider();
         });
     }
-});
-// -------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+    //----------------------------------------------
     // Cabin selection display
     const cabinSelect = document.getElementById("cabin-selection");
-    const cabins = document.querySelectorAll(".cabin-display");
+    const cabinDisplays = document.querySelectorAll(".cabin-display");
     const addNewCabin = document.querySelector(".add-new-cabin");
     const addNewCabinButton = document.querySelector(".add-cabin");
     if (cabinSelect) {
         cabinSelect.addEventListener("change", () => {
             const cabinSelectId = cabinSelect.value;
-            cabins.forEach(cabin => {
+            cabinDisplays.forEach(cabin => {
                 if (cabin.dataset.id === cabinSelectId) {
                     cabin.style.display = "flex";
                     addNewCabin.style.display = "none";
@@ -93,16 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-});
-// -------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+    //----------------------------------------------
     // User selection display
     const userSelect = document.getElementById("user-selection");
     const users = document.querySelectorAll(".user-display");
     const addNewUser = document.querySelector(".new-user");
     const addNewUserButton = document.querySelector(".add-user-button");
-    if (!userSelect) return;
-    if(userSelect) {
+    if (userSelect) {
         userSelect.addEventListener("change", () => {
             const userSelectId = userSelect.value;
             users.forEach(user => {
@@ -118,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     }
-    
+
     // Add new user
     if (addNewUserButton) {
         const addUserButton = document.querySelector(".add-user-button");
@@ -131,9 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userSelect.value = newUserDiv.dataset.id;
         });
     }
-});
-// -------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+    //----------------------------------------------
     // Function to handle price adjustment
     function priceAdjust(input, adjust) {
         if (!input || !adjust) return;
@@ -157,9 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     priceAdjust(pricePerWeek, newAdjustWeek);
 
     // Existing Cabins
-    const cabins = document.querySelectorAll('.cabin-display');
-    if(cabins) {
-        cabins.forEach(cabin => {
+    const cabinDisplaysForPrice = document.querySelectorAll('.cabin-display');
+    if(cabinDisplaysForPrice) {
+        cabinDisplaysForPrice.forEach(cabin => {
             const oldPricePerNight = cabin.querySelector('input[name="pricePerNight[]"]');
             const oldAdjustNight = cabin.querySelector('.oldAdjustNight');
             const oldPricePerWeek = cabin.querySelector('input[name="pricePerWeek[]"]');
@@ -169,10 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             priceAdjust(oldPricePerWeek, oldAdjustWeek);
         });
     }
-});
-
-// -------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+    //----------------------------------------------
     // Booking Confirmation
     const confirmBooking = document.querySelector(".confirm-booking");
     const bookingButton = document.getElementById("booking-button");
@@ -241,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
             confirmBooking.style.display = "flex";
         });
-        // -------------------------------------
+
         confirmBookingButton.addEventListener("click", (event) => {
             event.preventDefault();
             const bookingForm = document.getElementById("booking-form");
@@ -252,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmBookingButton.disabled = true;
             bookingForm.submit();
         });
-        // -------------------------------------  
+
         cancelBookingButton.addEventListener("click", () => {
             confirmBooking.style.display = "none";
         });
