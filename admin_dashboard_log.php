@@ -17,9 +17,22 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 }
 // Include connection to database
 include 'database_connect.php';
+
+// Get filter parameters
+$filterDay = $_GET['filter_day'] ?? '';
+$filterMonth = $_GET['filter_month'] ?? '';
+
+// Build date filter condition
+$dateCondition = "";
+if (!empty($filterDay)) {
+    $dateCondition = " WHERE DATE(loginDateTime) = '" . $connect->real_escape_string($filterDay) . "'";
+} elseif (!empty($filterMonth)) {
+    $dateCondition = " WHERE DATE_FORMAT(loginDateTime, '%Y-%m') = '" . $connect->real_escape_string($filterMonth) . "'";
+}
+
 // Load cabins from database for display
 $logs = [];
-$result = $connect->query("SELECT * FROM log ORDER BY loginDateTime DESC");
+$result = $connect->query("SELECT * FROM log" . $dateCondition . " ORDER BY loginDateTime DESC");
 // Get each data pair of rows
 while ($row = $result->fetch_assoc()) {
     $logs[] = $row;
@@ -127,6 +140,9 @@ $connect->close();
             color: black;
             transition: all 0.2s;
             font-family: roboto, sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .page-button:hover {
@@ -154,11 +170,85 @@ $connect->close();
             background-color: rgba(70, 45, 3, 1);
         }
 
+        .filter-form {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(95, 62, 4, 0.05);
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+        }
+
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: roboto, sans-serif;
+            width: 200px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-button {
+            all: unset;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 115, 0, 0.77);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: roboto, sans-serif;
+            text-align: center;
+        }
+
+        .filter-button:hover {
+            background-color: rgba(255, 115, 0, 0.9);
+        }
+
+        .clear-filter {
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: roboto, sans-serif;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .clear-filter:hover {
+            background-color: rgba(0, 0, 0, 1);
+        }
+
         @media (max-width: 1100px) {
 
             .log-details {
                 padding: 1rem;
                 margin: 5.5rem 2rem 1rem 2rem;
+                height: auto;
+                min-height: 80vh;
+                padding-bottom: 150px;
             }
 
             .table-container {
@@ -193,6 +283,10 @@ $connect->close();
 
             .logout {
                 bottom: 5px;
+            }
+
+            .filter-container input {
+                height: 30px;
             }
         }
     </style>
@@ -336,6 +430,26 @@ $connect->close();
             <?php if (!empty($mainMessage)): ?>
                 <p class="message"><?php echo htmlspecialchars($mainMessage); ?></p>
             <?php endif; ?>
+
+            <form method="GET" action="" class="filter-form">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label for="filter_day">Filter by Day:</label>
+                        <input type="date" id="filter_day" name="filter_day"
+                            value="<?php echo htmlspecialchars($filterDay); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter_month">Filter by Month:</label>
+                        <input type="month" id="filter_month" name="filter_month"
+                            value="<?php echo htmlspecialchars($filterMonth); ?>">
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="filter-button">Apply Filter</button>
+                        <a href="admin_dashboard_log.php" class="clear-filter">Clear Filter</a>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-container">
                 <table>
                     <thead>
