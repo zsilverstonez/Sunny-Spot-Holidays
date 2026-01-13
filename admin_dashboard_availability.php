@@ -17,9 +17,22 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 }
 // Include connection to database
 include 'database_connect.php';
+
+// Get filter parameters
+$filterDay = $_GET['filter_day'] ?? '';
+$filterMonth = $_GET['filter_month'] ?? '';
+
+// Build date filter condition
+$dateCondition = "";
+if (!empty($filterDay)) {
+    $dateCondition = " AND DATE(arrival) = '" . $connect->real_escape_string($filterDay) . "'";
+} elseif (!empty($filterMonth)) {
+    $dateCondition = " AND DATE_FORMAT(arrival, '%Y-%m') = '" . $connect->real_escape_string($filterMonth) . "'";
+}
+
 // Load bookings from database for display
 $bookings = [];
-$result = $connect->query("SELECT cabinType, status FROM booking");
+$result = $connect->query("SELECT cabinType, status FROM booking WHERE 1=1" . $dateCondition);
 // Get each data pair of rows
 while ($row = $result->fetch_assoc()) {
     $bookings[] = $row;
@@ -28,43 +41,52 @@ while ($row = $result->fetch_assoc()) {
 $cabins = [];
 $result2 = $connect->query("SELECT cabinType, quantity FROM cabin");
 // Get each data pair of rows
-while ($row2 = $result2->fetch_assoc()) {
-    $cabins[] = $row2;
+if ($result2) {
+    while ($row2 = $result2->fetch_assoc()) {
+        $cabins[] = $row2;
+    }
 }
-// Load total confirmed cabins from database for display
-$confirmedCabins = [];
-$result3 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'confirmed' GROUP BY cabinType");
+// Load total new cabins from database for display
+$newCabins = [];
+$result3 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'new'" . $dateCondition . " GROUP BY cabinType");
 // Get each data pair of rows
 while ($row3 = $result3->fetch_assoc()) {
     $confirmedCabins[$row3['cabinType']] = (int)$row3['total'];
 }
-// Load total checked in cabins from database for display
-$checkedInCabins = [];
-$result4 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'checkedIn' GROUP BY cabinType");
+// Load total confirmed cabins from database for display
+$confirmedCabins = [];
+$result4 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'confirmed'" . $dateCondition . " GROUP BY cabinType");
 // Get each data pair of rows
 while ($row4 = $result4->fetch_assoc()) {
-    $checkedInCabins[$row4['cabinType']] = (int)$row4['total'];
+    $confirmedCabins[$row4['cabinType']] = (int)$row4['total'];
+}
+// Load total checked in cabins from database for display
+$checkedInCabins = [];
+$result5 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'checkedIn'" . $dateCondition . " GROUP BY cabinType");
+// Get each data pair of rows
+while ($row5 = $result5->fetch_assoc()) {
+    $checkedInCabins[$row5['cabinType']] = (int)$row5['total'];
 }
 // Load total checked out cabins from database for display
 $checkedOutCabins = [];
-$result5 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'checkedOut' GROUP BY cabinType");
+$result6 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'checkedOut'" . $dateCondition . " GROUP BY cabinType");
 // Get each data pair of rows
-while ($row5 = $result5->fetch_assoc()) {
-    $checkedOutCabins[$row5['cabinType']] = (int)$row5['total'];
+while ($row6 = $result6->fetch_assoc()) {
+    $checkedOutCabins[$row6['cabinType']] = (int)$row6['total'];
 }
 // Load total cancelled cabins from database for display
 $cancelledCabins = [];
-$result6 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'cancelled' GROUP BY cabinType");
+$result7 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'cancelled'" . $dateCondition . " GROUP BY cabinType");
 // Get each data pair of rows
-while ($row6 = $result6->fetch_assoc()) {
-    $cancelledCabins[$row6['cabinType']] = (int)$row6['total'];
+while ($row7 = $result7->fetch_assoc()) {
+    $cancelledCabins[$row7['cabinType']] = (int)$row7['total'];
 }
 // Load total archived cabins from database for display
 $archivedCabins = [];
-$result7 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'archived' GROUP BY cabinType");
+$result8 = $connect->query("SELECT cabinType, COUNT(*) AS total FROM booking WHERE status = 'archived'" . $dateCondition . " GROUP BY cabinType");
 // Get each data pair of rows
-while ($row7 = $result7->fetch_assoc()) {
-    $archivedCabins[$row7['cabinType']] = (int)$row7['total'];
+while ($row8 = $result8->fetch_assoc()) {
+    $archivedCabins[$row8['cabinType']] = (int)$row8['total'];
 }
 
 // Close connection
@@ -114,7 +136,7 @@ $connect->close();
         table {
             border: 1px solid #ccc;
             width: 100%;
-            max-width: 1400px;
+            max-width: 1700px;
             table-layout: fixed;
             border-collapse: collapse;
             margin-bottom: 2rem;
@@ -148,35 +170,81 @@ $connect->close();
         th:nth-child(5),
         th:nth-child(6),
         th:nth-child(7),
-        th:nth-child(8) {
+        th:nth-child(8),
+        th:nth-child(9) {
             width: 160px;
         }
 
-
-        #pageSlider {
-            text-align: center;
-            margin-top: 20px;
+        .filter-form {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(95, 62, 4, 0.05);
+            border-radius: 10px;
+            border: 1px solid #ccc;
         }
 
-        .page-button {
-            all: unset;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            margin: 0 5px;
-            cursor: pointer;
-            background-color: white;
-            color: black;
-            transition: all 0.2s;
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+        }
+
+        .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
             font-family: roboto, sans-serif;
-            padding: 0;
-            font-size: 12px;
+            width: 200px;
+            text-align: center;
         }
 
-        .page-button:hover {
-            background-color: rgba(70, 45, 3, 1);
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-button {
+            all: unset;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 115, 0, 0.77);
             color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: roboto, sans-serif;
+            text-align: center;
+        }
+
+        .filter-button:hover {
+            background-color: rgba(255, 115, 0, 0.9);
+        }
+
+        .clear-filter {
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: roboto, sans-serif;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .clear-filter:hover {
+            background-color: rgba(0, 0, 0, 1);
         }
 
         .logout {
@@ -221,6 +289,10 @@ $connect->close();
             th:first-child {
                 width: 300px;
             }
+
+            .filter-container input {
+                height: 30px;
+            }
         }
     </style>
     <script src="script.js" defer></script>
@@ -254,12 +326,33 @@ $connect->close();
     <main>
         <div class="availability-details">
             <h2>Cabin Availability Summary</h2>
+
+            <form method="GET" action="" class="filter-form">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label for="filter_day">Filter by Day:</label>
+                        <input type="date" id="filter_day" name="filter_day"
+                            value="<?php echo htmlspecialchars($filterDay); ?>">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter_month">Filter by Month:</label>
+                        <input type="month" id="filter_month" name="filter_month"
+                            value="<?php echo htmlspecialchars($filterMonth); ?>">
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="filter-button">Apply Filter</button>
+                        <a href="admin_dashboard_availability.php" class="clear-filter">Clear Filter</a>
+                    </div>
+                </div>
+            </form>
+
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>Cabin Type</th>
                             <th>Total Cabins</th>
+                            <th>New</th>
                             <th>Confirmed</th>
                             <th>Checked In</th>
                             <th>Checked Out</th>
@@ -271,11 +364,13 @@ $connect->close();
                     <tbody>
                         <?php foreach ($cabins as $i => $cabin) : ?>
                             <?php
+                            $totalCabins = (int)($cabin['quantity'] ?? 0);
+                            $new = $newCabins[$cabin['cabinType']] ?? 0;
                             $confirmed = $confirmedCabins[$cabin['cabinType']] ?? 0;
                             $checkedIn = $checkedInCabins[$cabin['cabinType']] ?? 0;
                             $checkedOut = $checkedOutCabins[$cabin['cabinType']] ?? 0;
                             $cancelled = $cancelledCabins[$cabin['cabinType']] ?? 0;
-                            $available = $cabin['quantity'] - $confirmed - $checkedIn - $checkedOut - $cancelled;
+                            $available = $totalCabins - $confirmed - $checkedIn - $checkedOut - $cancelled;
                             $archived = $archivedCabins[$cabin['cabinType']] ?? 0;
                             ?>
                             <tr>
@@ -283,8 +378,9 @@ $connect->close();
                                     readonly>
                                 <td><?php echo htmlspecialchars($cabin['cabinType']); ?>
                                 </td>
-                                <td><?php echo htmlspecialchars((int)$cabin['quantity']); ?>
+                                <td><?php echo htmlspecialchars($totalCabins); ?>
                                 </td>
+                                <td><?php echo htmlspecialchars($new); ?></td>
                                 <td><?php echo htmlspecialchars($confirmed); ?></td>
                                 <td><?php echo htmlspecialchars($checkedIn); ?></td>
                                 <td><?php echo htmlspecialchars($checkedOut); ?></td>
