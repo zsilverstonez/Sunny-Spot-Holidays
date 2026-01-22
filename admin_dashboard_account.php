@@ -7,11 +7,11 @@ if (!isset($_SESSION['csrf_token'])) {
 
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: login.php");
+    header("Location: admin/login.php");
     exit;
 }
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header("Location: login.php");
+    header("Location: admin/login.php");
     exit;
 }
 // Include connection to database
@@ -184,238 +184,238 @@ $connect->close();
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <style>
-        .user-header {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
+    .user-header {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
 
-        .user-selection {
-            width: 400px;
-            height: 50px;
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            font-size: 1rem;
-            padding: 0 0.5rem;
-        }
+    .user-selection {
+        width: 400px;
+        height: 50px;
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 6px;
+        font-size: 1rem;
+        padding: 0 0.5rem;
+    }
 
-        .user-details {
-            width: 100%;
-            max-width: 1400px;
-            padding: 1rem;
-            margin: 7rem 1rem 3rem 1rem;
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            background-color: white;
-            font-family: roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+    .user-details {
+        width: 100%;
+        max-width: 1400px;
+        padding: 1rem;
+        margin: 7rem 1rem 3rem 1rem;
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        background-color: white;
+        font-family: roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 
-        h2 {
-            text-align: center;
-        }
+    h2 {
+        text-align: center;
+    }
 
-        .user-display,
-        .new-user {
-            width: 100%;
-            max-width: 900px;
-            margin: 1rem 0;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    .user-display,
+    .new-user {
+        width: 100%;
+        max-width: 900px;
+        margin: 1rem 0;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-        .user-display {
-            display: none;
-        }
+    .user-display {
+        display: none;
+    }
 
-        .form-divider {
-            display: flex;
-            margin: 1rem 0;
-            width: 100%;
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            padding: 0.4rem 1rem;
-            justify-content: center;
-            align-items: center;
-        }
+    .form-divider {
+        display: flex;
+        margin: 1rem 0;
+        width: 100%;
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 6px;
+        padding: 0.4rem 1rem;
+        justify-content: center;
+        align-items: center;
+    }
 
-        .form-divider label {
-            font-weight: bold;
-            width: 30%;
-        }
+    .form-divider label {
+        font-weight: bold;
+        width: 30%;
+    }
 
-        .form-divider input {
-            width: 100%;
-            font-size: 1.1rem;
-            border: none;
-            text-align: center;
-            padding: 0.3rem 0;
-        }
+    .form-divider input {
+        width: 100%;
+        font-size: 1.1rem;
+        border: none;
+        text-align: center;
+        padding: 0.3rem 0;
+    }
 
-        .form-divider .photo-container {
-            width: 70%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-        }
+    .form-divider .photo-container {
+        width: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+    }
 
-        textarea {
-            width: 100%;
-            padding: 0.5rem 0.3rem;
-            text-align: center;
-        }
+    textarea {
+        width: 100%;
+        padding: 0.5rem 0.3rem;
+        text-align: center;
+    }
 
-        .button-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
+    .button-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
 
-        button {
-            display: flex;
-            width: 140px;
-            height: 40px;
-            padding: 0 0.5rem;
-            border-radius: 10px;
-            border: none;
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(255, 115, 0, 0.77);
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-        }
+    button {
+        display: flex;
+        width: 140px;
+        height: 40px;
+        padding: 0 0.5rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 115, 0, 0.77);
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+    }
 
-        button:hover {
-            background-color: rgba(255, 115, 0, 1);
-        }
+    button:hover {
+        background-color: rgba(255, 115, 0, 1);
+    }
 
-        .delete-user-button {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+    .delete-user-button {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
 
-        .delete-user-button:hover {
-            background-color: rgba(0, 0, 0, 1);
-        }
+    .delete-user-button:hover {
+        background-color: rgba(0, 0, 0, 1);
+    }
 
-        .add-user-button {
-            background-color: rgba(37, 170, 4, 0.77);
-            width: 165px;
-            min-height: 40px;
+    .add-user-button {
+        background-color: rgba(37, 170, 4, 0.77);
+        width: 165px;
+        min-height: 40px;
+        margin-top: 1rem;
+    }
+
+    .add-user-button:hover {
+        background-color: rgba(24, 110, 3, 0.77);
+    }
+
+    .update-user-button {
+        margin-top: 0.5rem;
+    }
+
+    a.add-user {
+        display: flex;
+        width: 100%;
+        max-width: 80px;
+        height: 40px;
+        padding: 0 0.5rem;
+        margin: auto;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(37, 170, 4, 0.77);
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+
+    a.add-user:hover {
+        background-color: rgba(24, 110, 3, 0.77);
+    }
+
+    .message {
+        color: green;
+        text-align: center;
+        font-weight: bold;
+        margin: 1rem;
+        margin-bottom: -1rem;
+    }
+
+    .messageErr {
+        color: red;
+        text-align: center;
+        font-weight: bold;
+        margin: 1rem;
+        margin-bottom: -1rem;
+    }
+
+    .logout {
+        display: block;
+        width: 100px;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        background-color: rgba(95, 62, 4, 1);
+    }
+
+    .logout:hover {
+        background-color: rgba(70, 45, 3, 1);
+    }
+
+    @media (max-width: 568px) {
+
+        .message,
+        .messageErr {
             margin-top: 1rem;
         }
 
-        .add-user-button:hover {
-            background-color: rgba(24, 110, 3, 0.77);
-        }
 
-        .update-user-button {
-            margin-top: 0.5rem;
-        }
 
-        a.add-user {
-            display: flex;
-            width: 100%;
-            max-width: 80px;
-            height: 40px;
-            padding: 0 0.5rem;
-            margin: auto;
-            border-radius: 10px;
-            border: none;
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(37, 170, 4, 0.77);
-            color: white;
-            cursor: pointer;
-            font-size: 1rem;
-            text-decoration: none;
-        }
-
-        a.add-user:hover {
-            background-color: rgba(24, 110, 3, 0.77);
-        }
-
-        .message {
-            color: green;
-            text-align: center;
-            font-weight: bold;
-            margin: 1rem;
+        .user-selection,
+        .form-divider {
+            width: 350px;
+            color: black;
             margin-bottom: -1rem;
         }
 
-        .messageErr {
-            color: red;
-            text-align: center;
-            font-weight: bold;
+
+        .form-divider {
+            width: 350px;
             margin: 1rem;
-            margin-bottom: -1rem;
+            margin-left: -1.3rem;
         }
-
-        .logout {
-            display: block;
-            width: 100px;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            background-color: rgba(95, 62, 4, 1);
-        }
-
-        .logout:hover {
-            background-color: rgba(70, 45, 3, 1);
-        }
-
-        @media (max-width: 568px) {
-
-            .message,
-            .messageErr {
-                margin-top: 1rem;
-            }
-
-
-
-            .user-selection,
-            .form-divider {
-                width: 350px;
-                color: black;
-                margin-bottom: -1rem;
-            }
-
-
-            .form-divider {
-                width: 350px;
-                margin: 1rem;
-                margin-left: -1.3rem;
-            }
-        }
+    }
     </style>
     <script src="script.js" defer></script>
     <script>
-        let lastUserId = <?php echo $lastUserId ?>
-        document.addEventListener('DOMContentLoaded', () => {
-            const usernameInput = document.querySelectorAll(".username-input");
-            const resetPasswordInput = document.querySelectorAll(".reset-password-input");
-            const resetPasswordButton = document.querySelectorAll(".reset-password-button");
-            resetPasswordButton.forEach((button, index) => {
-                button.addEventListener('click', () => {
-                    resetPasswordInput[index].value = usernameInput[index].value;
-                });
+    let lastUserId = <?php echo $lastUserId ?>
+    document.addEventListener('DOMContentLoaded', () => {
+        const usernameInput = document.querySelectorAll(".username-input");
+        const resetPasswordInput = document.querySelectorAll(".reset-password-input");
+        const resetPasswordButton = document.querySelectorAll(".reset-password-button");
+        resetPasswordButton.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                resetPasswordInput[index].value = usernameInput[index].value;
             });
-        })
+        });
+    })
     </script>
 </head>
 
@@ -452,9 +452,9 @@ $connect->close();
                 <select id="user-selection" class="user-selection" name="user-selection" aria-label="User Selection">
                     <option value="" disabled selected>Select a user</option>
                     <?php foreach ($users as $user): ?>
-                        <option value="<?php echo $user['staffID']; ?>">
-                            <?php echo htmlspecialchars($user['userName']); ?>
-                        </option>
+                    <option value="<?php echo $user['staffID']; ?>">
+                        <?php echo htmlspecialchars($user['userName']); ?>
+                    </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -490,70 +490,70 @@ $connect->close();
             </div>
             <!-- Existing Users -->
             <?php foreach ($users as $index => $user): ?>
-                <div class="user-display" data-id="<?php echo $user['staffID']; ?>">
-                    <form method="POST" onsubmit="return confirm('Are you sure about updating this user?');"
-                        enctype="multipart/form-data">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                        <input type="hidden" name="action[]" value="update">
-                        <input type="hidden" name="staffID[]" value="<?php echo htmlspecialchars($user['staffID']); ?>"
-                            readonly>
-                        <div class="form-divider"><label>Username: </label>
-                            <input type="text" name="username[]" value="<?php echo htmlspecialchars($user['username']); ?>"
-                                class="username-input">
-                        </div>
-                        <div class="form-divider"><label>First Name: </label>
-                            <input type="text" name="firstName[]"
-                                value="<?php echo htmlspecialchars($user['firstName']); ?>">
-                        </div>
-                        <div class="form-divider"><label>Password: </label>
-                            <input type="hidden" name="password[]" value="" class="reset-password-input">
-                            <button type="button" class="reset-password-button" style="  width: 100%;
+            <div class="user-display" data-id="<?php echo $user['staffID']; ?>">
+                <form method="POST" onsubmit="return confirm('Are you sure about updating this user?');"
+                    enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="action[]" value="update">
+                    <input type="hidden" name="staffID[]" value="<?php echo htmlspecialchars($user['staffID']); ?>"
+                        readonly>
+                    <div class="form-divider"><label>Username: </label>
+                        <input type="text" name="userName[]" value="<?php echo htmlspecialchars($user['userName']); ?>"
+                            class="username-input">
+                    </div>
+                    <div class="form-divider"><label>First Name: </label>
+                        <input type="text" name="firstName[]"
+                            value="<?php echo htmlspecialchars($user['firstName']); ?>">
+                    </div>
+                    <div class="form-divider"><label>Password: </label>
+                        <input type="hidden" name="password[]" value="" class="reset-password-input">
+                        <button type="button" class="reset-password-button" style="  width: 100%;
             font-size: 1.1rem;
             border: none;
             text-align: center;
             padding: 0.3rem 0;">Reset Password</button>
+                    </div>
+                    <div class="form-divider"><label>Last Name: </label>
+                        <input type="text" name="lastName[]" value="<?php echo htmlspecialchars($user['lastName']); ?>">
+                    </div>
+                    <div class="form-divider"><label>Address: </label>
+                        <input type="text" name="address[]" value="<?php echo htmlspecialchars($user['address']); ?>">
+                    </div>
+                    <div class="form-divider"><label>Phone: </label>
+                        <input type="text" name="phone[]" value="<?php echo htmlspecialchars($user['phone']); ?>">
+                    </div>
+                    <div class="form-divider"><label>Mobile: </label>
+                        <input type="text" name="mobile[]" value="<?php echo htmlspecialchars($user['mobile']); ?>">
+                    </div>
+                    <div class="form-divider"><label>Photo: </label>
+                        <div class="photo-container">
+                            <?php if (!empty($user['userPhoto'])): ?>
+                            <img src="staffPhoto/<?php echo htmlspecialchars($user['userPhoto']); ?>" alt="Staff Photo"
+                                width="150px" height="100px">
+                            <?php endif; ?>
+                            <input type="file" name="userPhoto[]">
+                            <input type="hidden" name="userPhoto_existing[]"
+                                value="<?php echo htmlspecialchars($user['userPhoto']); ?>">
                         </div>
-                        <div class="form-divider"><label>Last Name: </label>
-                            <input type="text" name="lastName[]" value="<?php echo htmlspecialchars($user['lastName']); ?>">
-                        </div>
-                        <div class="form-divider"><label>Address: </label>
-                            <input type="text" name="address[]" value="<?php echo htmlspecialchars($user['address']); ?>">
-                        </div>
-                        <div class="form-divider"><label>Phone: </label>
-                            <input type="text" name="phone[]" value="<?php echo htmlspecialchars($user['phone']); ?>">
-                        </div>
-                        <div class="form-divider"><label>Mobile: </label>
-                            <input type="text" name="mobile[]" value="<?php echo htmlspecialchars($user['mobile']); ?>">
-                        </div>
-                        <div class="form-divider"><label>Photo: </label>
-                            <div class="photo-container">
-                                <?php if (!empty($user['userPhoto'])): ?>
-                                    <img src="staffPhoto/<?php echo htmlspecialchars($user['userPhoto']); ?>" alt="Staff Photo"
-                                        width="150px" height="100px">
-                                <?php endif; ?>
-                                <input type="file" name="userPhoto[]">
-                                <input type="hidden" name="userPhoto_existing[]"
-                                    value="<?php echo htmlspecialchars($user['userPhoto']); ?>">
-                            </div>
-                        </div>
-                        <div class="button-wrapper">
-                            <button type="submit" class="update-user-button">Update User</button>
-                        </div>
-                    </form>
-                    <a class="add-user" href="admin_dashboard_account.php">Back</a>
-                    <form method="POST" onsubmit="return confirm('Are you sure about deleting this user?');">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                        <input type="hidden" name="staffID[]" value="<?php echo htmlspecialchars($user['staffID']); ?>">
-                        <input type="hidden" name="action[]" value="delete">
-                        <div class="button-wrapper">
-                            <button type="submit" class="delete-user-button">Delete User</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="button-wrapper">
+                        <button type="submit" class="update-user-button">Update User</button>
+                    </div>
+                </form>
+                <a class="add-user" href="admin_dashboard_account.php">Back</a>
+                <form method="POST" onsubmit="return confirm('Are you sure about deleting this user?');">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="staffID[]" value="<?php echo htmlspecialchars($user['staffID']); ?>">
+                    <input type="hidden" name="action[]" value="delete">
+                    <div class="button-wrapper">
+                        <button type="submit" class="delete-user-button">Delete User</button>
+                    </div>
+                </form>
 
-                </div>
+            </div>
             <?php endforeach; ?>
 
-            <a class="logout" href="logout.php">Log Out</a>
+            <a class="logout" href="admin/logout.php">Log Out</a>
         </div>
     </main>
 
@@ -561,7 +561,7 @@ $connect->close();
         <p><a href="https://www.google.com/maps?q=50+Melaleuca+Cres,+Tascott+NSW+2250" target="_blank">50 Melaleuca
                 Cres, Tascott NSW 2250</a></p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
+        <a id="login" href="admin/login.php">Admin</a>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
