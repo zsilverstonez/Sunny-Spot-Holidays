@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['departure'] = $_POST['departure'];
                 $_SESSION['cabinType'] = $_POST['cabin_type'];
                 $_SESSION['numberOfGuest'] = $_POST['number_of_guest'];
-                header("Location: booking.php");
+                header("Location: booking");
                 exit;
             }
         }
@@ -106,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $contactTable->close();
 
                     // Mail Notification
-                    $headers = "From: noreply@sunnyspotholidays.com.au\r\n";
-                    $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
+                    $headers = "From: " . $_ENV['FROM_EMAIL'];
+                    $headers .= "Reply-To: " . $_ENV['FROM_EMAIL'];
 
                     $safeName = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
                     $safeEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
@@ -1176,9 +1176,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -1186,7 +1186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php" class="active">Home</a></li>
+                <li class="home"><a href="home" class="active">Home</a></li>
                 <li class="information"><a href="information">Guest Information</a></li>
                 <li class="attractions"><a href="attractions">Attractions</a></li>
                 <li class="foodAndDrink"><a href="foodAndDrink">Food & Drink</a></li>
