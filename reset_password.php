@@ -21,9 +21,11 @@
         } elseif (time() > $_SESSION['reset_expire']) {
             $message = "Reset code has expired.<br>Please request a new one.";
         } else {
+            // Hash password before storing
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             // Update password in database
             $passwordUpdate = $connect->prepare("UPDATE account SET password=? WHERE username=?");
-            $passwordUpdate->bind_param("ss", $password, $username);
+            $passwordUpdate->bind_param("ss", $hashedPassword, $username);
             $passwordUpdate->execute();
             $passwordUpdate->close();
             $message = "Your password has been updated successfully!<br>You can now log in.";
