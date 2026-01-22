@@ -114,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Secure headers with MIME type
             $headers = "MIME-Version: 1.0\r\n";
             $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-            $headers .= "From: noreply@sunnyspotholidays.com.au\r\n";
-            $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
+            $headers .= "From: " . $_ENV['FROM_EMAIL'];
+            $headers .= "Reply-To: " . $_ENV['FROM_EMAIL'];
             $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
 
             // Build secure email content for admin
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $customer_message,
                 $headers
             );
-            header("Location: confirmed_booking.php");
+            header("Location: confirmed_booking");
             exit;
         }
     }
@@ -442,9 +442,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -452,11 +452,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php" class="active">Home</a></li>
-                <li class="information"><a href="information.php">Guest Information</a></li>
-                <li class="attractions"><a href="attractions.php">Attractions</a></li>
-                <li class="foodAndDrink"><a href="foodAndDrink.php">Food & Drink</a></li>
-                <li class="contact"><a href="contact.php">Contact Us</a></li>
+                <li class="home"><a href="home" class="active">Home</a></li>
+                <li class="information"><a href="information">Guest Information</a></li>
+                <li class="attractions"><a href="attractions">Attractions</a></li>
+                <li class="foodAndDrink"><a href="foodAndDrink">Food & Drink</a></li>
+                <li class="contact"><a href="contact">Contact Us</a></li>
             </ul>
             <div class="hamburger-menu">
                 <span></span>
@@ -548,7 +548,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     oninvalid="this.setCustomValidity('Please enter a valid email')"
                     oninput="this.setCustomValidity('')" />
                 <textarea name="booking-message" id="booking-message" placeholder="Please leave any message"></textarea>
-                <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY']); ?>"></div>
+                <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY']); ?>">
+                </div>
                 <button type="button" id="booking-button">Book Now</button>
             </fieldset>
         </form>
