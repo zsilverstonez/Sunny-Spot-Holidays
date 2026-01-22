@@ -231,9 +231,6 @@ footer img {
 footer #login {
     text-transform: uppercase;
     list-style: none;
-}
-
-footer #login a {
     text-decoration: none;
 }
 
