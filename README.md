@@ -17,6 +17,7 @@ Note: This is a mock website created as a portfolio project.
 - SQL injection prevention using prepared statements
 - Activity logging for owner/manager oversight
 - Automated email notifications via PHPMailer
+- Password reset functionality with token-based verification
 - Responsive design for desktop, tablet, and mobile
 - Google Analytics and Search Console integration
 
@@ -28,7 +29,25 @@ Note: This is a mock website created as a portfolio project.
 - PHP
 - MySQL
 - PHPMailer
+- Composer (vlucas/phpdotenv)
 - Git/GitHub
+
+---
+
+## Project Structure
+
+```
+/                           # Public pages (index, booking, contact, etc.)
+/admin/                     # Admin-only pages
+    login.php              # Staff/admin login
+    logout.php             # Session logout handler
+    email.php              # Password reset email sender
+    reset_password.php     # Password reset form
+/images/                    # Image assets
+/vendor/                    # Composer dependencies (not in repo)
+.env                        # Environment variables (not in repo)
+database_connect.php        # Database connection (shared)
+```
 
 ---
 
@@ -36,8 +55,16 @@ Note: This is a mock website created as a portfolio project.
 
 1. Clone the repository
 2. Import database schema into MySQL
-3. Copy .env.example to .env and update database and email credentials
-4. Run composer install to install dependencies (PHPMailer, phpdotenv, etc.)
-5. Ensure .env and /vendor are included in .gitignore
-6. Upload required directories (images, staffPhoto, email)
-7. Deploy the project to a PHP-enabled web server
+3. Copy `.env.example` to `.env` and update credentials:
+   ```
+   DB_HOST=localhost
+   DB_USER=your_db_user
+   DB_PASS=your_db_password
+   DB_NAME=your_db_name
+   MAIL_HOST=your_smtp_host
+   FROM_EMAIL=your_email@domain.com
+   ```
+4. Run `composer install` to install dependencies
+5. Ensure `.env` and `/vendor` are in `.gitignore`
+6. Deploy to a PHP-enabled web server
+
