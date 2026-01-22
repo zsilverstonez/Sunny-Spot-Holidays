@@ -147,7 +147,7 @@
          <article>
              <h2>Reset Password</h2>
              <?php if (!empty($message)): ?>
-                 <p class="error"><?php echo $message; ?></p>
+                 <p class="error"><?php echo str_replace('&lt;br&gt;', '<br>', htmlspecialchars($message, ENT_QUOTES, 'UTF-8')); ?></p>
              <?php endif; ?>
              <form method="post" action="">
                  <fieldset class="login">
