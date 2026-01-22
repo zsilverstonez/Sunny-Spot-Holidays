@@ -87,8 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['lockout_time'] == 0) {
                 
                 // Head user to correct dashboard based on their position
                 $redirect = ($_SESSION["role"] === "admin") 
-                    ? "../admin_dashboard_booking.php"
-                    : "../staff_dashboard_booking.php";
+                    ? "../admin_dashboard_booking"
+                    : "../staff_dashboard_booking";
                 header("Location: $redirect");
                 exit;
             } else {
@@ -219,9 +219,9 @@ $connect->close();
 <body>
     <header>
         <div class="header-divider">
-            <a href="../index.php"><img src="../images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="../home"><img src="../images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="../index.php" class="title">
+                <a href="../home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -242,7 +242,7 @@ $connect->close();
                     <input type="password" name="password" id="password" placeholder="Enter Password" required
                         <?php echo ($_SESSION['lockout_time'] > 0) ? 'disabled' : ''; ?>>
                     <?php if (!empty($passResetMessage)): ?>
-                    <a class="reset-password" href="email.php"><?php echo $passResetMessage; ?></a>
+                    <a class="reset-password" href="email"><?php echo $passResetMessage; ?></a>
                     <?php endif; ?>
                     <button type="submit"
                         <?php echo ($_SESSION['lockout_time'] > 0) ? 'disabled' : ''; ?>>Login</button>
