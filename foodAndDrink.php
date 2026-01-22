@@ -190,13 +190,13 @@
     <?php
     $restaurantsAndCafes = [
         [
-            "image" => "images/Fare Cravin Café.avif",
+            "image" => "images/Fare Cravin Cafe.avif",
             "name" => "Fare Cravin' Café",
             "description" => "A tranquil and cosy café with classic Aussie menu.<br>Open Monday to Friday 7am – 2pm. Saturday and Sunday 8am – 2pm.",
             "address" => "209 Brisbane Water Dr, Point Clare NSW 2250"
         ],
         [
-            "image" => "images/Little Piggy Eat & Drink Café.avif",
+            "image" => "images/Little Piggy Eat & Drink Cafe.avif",
             "name" => "This Little Piggy Eat & Drink Café",
             "description" => "A cute and artist café with healthy menu.<br>Open Monday to Friday 6:30am to 1:30pm and Saturday 7:30am – 1pm.",
             "address" => "7/51 Brisbane Water Drive &, Talinga Ave, Point Clare NSW 2250"
@@ -229,9 +229,9 @@
     ?>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -239,11 +239,11 @@
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php">Home</a></li>
-                <li class="information"><a href="information.php">Guest Information</a></li>
-                <li class="attractions"><a href="attractions.php">Attractions</a></li>
-                <li class="foodAndDrink"><a href="foodAndDrink.php" class="active">Food & Drink</a></li>
-                <li class="contact"><a href="contact.php">Contact Us</a></li>
+                <li class="home"><a href="home">Home</a></li>
+                <li class="information"><a href="information">Guest Information</a></li>
+                <li class="attractions"><a href="attractions">Attractions</a></li>
+                <li class="foodAndDrink"><a href="foodAndDrink" class="active">Food & Drink</a></li>
+                <li class="contact"><a href="contact">Contact Us</a></li>
             </ul>
             <div class="hamburger-menu">
                 <span></span>
