@@ -12,16 +12,41 @@ include 'database_connect.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $receivedMessageErr = "Security validation failed. Please try again.";
+    } elseif (empty($_POST['g-recaptcha-response'])) {
+        $receivedMessageErr = "Please complete the CAPTCHA.";
     } else {
-        $name = trim($_POST['contact-name'] ?? '');
-        $phone = trim($_POST['contact-phone'] ?? '');
-        $email = trim($_POST['contact-email'] ?? '');
-        $message = trim($_POST['contact-message'] ?? '');
-        $status = 'new';
+        // Verify reCAPTCHA using cURL
+        $secretKey = $_ENV['RECAPTCHA_SECRET_KEY'];
+        $captchaResponse = $_POST['g-recaptcha-response'];
+        $verifyURL = "https://www.google.com/recaptcha/api/siteverify";
 
-        if (!$name || !$phone || !$email || !$message) {
-            $receivedMessageErr = 'There is an error in submitting your message.<br>Please check and resubmit again.';
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $verifyURL);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'secret' => $secretKey,
+            'response' => $captchaResponse
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        if (!$responseData || !$responseData['success']) {
+            $receivedMessageErr = "CAPTCHA verification failed. Please try again.";
         } else {
+            $name = trim($_POST['contact-name'] ?? '');
+            $phone = trim($_POST['contact-phone'] ?? '');
+            $email = trim($_POST['contact-email'] ?? '');
+            $message = trim($_POST['contact-message'] ?? '');
+            $status = 'new';
+
+            if (!$name || !$phone || !$email || !$message) {
+                $receivedMessageErr = 'Please fill in all fields.';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $receivedMessageErr = 'Please enter a valid email address.';
+            } else {
             // Check if connection exists
             if (!$connect) {
                 $receivedMessageErr = 'Database connection failed: ' . mysqli_connect_error();
@@ -42,14 +67,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $contactTable->close();
 
                     // Mail Notification
-                    $headers = "From: noreply@your-domain-name\r\n";
-                    $headers .= "Reply-To: noreply@your-domain-name\r\n";
+                    $headers = "From: noreply@sunnyspotholidays.com.au\r\n";
+                    $headers .= "Reply-To: noreply@sunnyspotholidays.com.au\r\n";
                     $safeName = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
                     $safeEmail = filter_var($email, FILTER_SANITIZE_EMAIL);
                     $safePhone = filter_var($phone, FILTER_SANITIZE_SPECIAL_CHARS);
                     $safeMessage = filter_var($message, FILTER_SANITIZE_SPECIAL_CHARS);
                     mail(
-                        'your-admin-email',
+                        $_ENV['ADMIN_EMAIL'],
                         'New Contact - Sunny Spot Holidays',
                         'A new contact has been received at Sunny Spot Holidays! 
 
@@ -65,6 +90,7 @@ This is an automated notification from sunnyspotholidays.com.au',
                     );
                 }
             }
+        }
         }
     }
 }
@@ -91,269 +117,276 @@ This is an automated notification from sunnyspotholidays.com.au',
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <style>
-        .main-contact {
-            margin-top: 3rem;
-            background-image: url(images/background.jpg);
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            position: relative;
-            flex: 1;
+    .main-contact {
+        margin-top: 3rem;
+        background-image: url(images/background.jpg);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+        flex: 1;
+    }
+
+    main::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+    }
+
+    #contact-form {
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 6px;
+        width: 100%;
+        max-width: 1000px;
+        padding: 1rem 3rem;
+        background-color: white;
+        margin: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 15;
+    }
+
+    .contact-header-divider {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    iframe {
+        margin-top: 1rem;
+        margin-bottom: 4rem;
+    }
+
+    fieldset {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        max-width: 900px;
+        border: none;
+        margin-top: -2rem;
+    }
+
+    .address {
+        position: relative;
+    }
+
+    .address h4 {
+        margin-bottom: 0.5rem;
+    }
+
+    .address img {
+        width: 100px;
+        height: 80px;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        animation: swing 1s ease-in-out;
+    }
+
+    @keyframes swing {
+        0% {
+            transform: rotateY(0deg);
         }
 
-        main::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
+        20% {
+            transform: rotateY(40deg);
+        }
+
+        40% {
+            transform: rotateY(-25deg);
+        }
+
+        60% {
+            transform: rotateY(20deg);
+        }
+
+        80% {
+            transform: rotateY(-10deg);
+        }
+
+        100% {
+            transform: rotateY(0deg);
+        }
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin: 0.5rem auto;
+    }
+
+    .send-us {
+        width: 100px;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem;
+        margin: auto;
+        margin-top: 0.5rem;
+        background-color: rgba(219, 103, 8, 0.842);
+        color: white;
+        cursor: pointer;
+        font-family: roboto, sans-serif;
+        font-weight: bold;
+    }
+
+    .send-us:hover {
+        background-color: rgba(219, 103, 8, 1);
+    }
+
+    h4 {
+        margin-bottom: -1rem;
+        text-align: center;
+        font-size: 1.3rem;
+    }
+
+    .address a {
+        cursor: pointer;
+        text-decoration: underline;
+        color: rgba(219, 103, 8, 0.842)
+    }
+
+    .address a:hover {
+        color: rgba(219, 103, 8, 1);
+    }
+
+    #contact-received-message {
+        color: green;
+        text-align: center;
+        margin-top: 2rem;
+        font-weight: bold;
+    }
+
+    #contact-received-message-err {
+        color: red;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .g-recaptcha {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 920px) {
+        #contact-form {
+            max-width: 800px;
+            margin-inline: 1rem;
+            padding: 1rem;
+        }
+
+        iframe[src*="google.com/maps"] {
+            width: 600px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-contact {
+            margin-top: 4rem;
         }
 
         #contact-form {
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-            width: 100%;
-            max-width: 1000px;
-            padding: 1rem 3rem;
-            background-color: white;
-            margin: 2rem 2rem 2rem 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 15;
-            ;
-        }
-
-        .contact-header-divider {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .contact-icon {
-            width: 60px;
-            height: 60px;
-        }
-
-        iframe {
+            max-width: 650px;
             margin-top: 1rem;
-            margin-bottom: 4rem;
+            margin-bottom: 2rem;
         }
 
         fieldset {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 100%;
-            max-width: 900px;
-            border: none;
-            margin-top: -3rem;
+            margin: -3rem 1rem 0.5rem 1rem;
+            max-width: 600px;
         }
 
-        .address {
-            position: relative;
+        h2 {
+            font-size: 1.5rem;
         }
 
-        .address h4 {
-            margin-bottom: 0.5rem;
-        }
-
-        .address img {
-            width: 100px;
-            height: 80px;
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            animation: swing 1s ease-in-out;
-        }
-
-        @keyframes swing {
-            0% {
-                transform: rotateY(0deg);
-            }
-
-            20% {
-                transform: rotateY(40deg);
-            }
-
-            40% {
-                transform: rotateY(-25deg);
-            }
-
-            60% {
-                transform: rotateY(20deg);
-            }
-
-            80% {
-                transform: rotateY(-10deg);
-            }
-
-            100% {
-                transform: rotateY(0deg);
-            }
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-            margin: 0.5rem 0.25rem;
-        }
-
-        .send-us {
-            width: 100px;
-            border: none;
-            border-radius: 6px;
-            padding: 0.5rem;
-            margin: auto;
-            margin-top: 0.5rem;
-            background-color: rgba(219, 103, 8, 0.842);
-            color: white;
-            cursor: pointer;
-            font-family: roboto, sans-serif;
-            font-weight: bold;
-        }
-
-        .send-us:hover {
-            background-color: rgba(219, 103, 8, 1);
+        .contact-icon {
+            width: 35px;
+            height: 35px;
         }
 
         h4 {
-            margin-bottom: -1rem;
-            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        p {
+            font-size: 1rem;
+        }
+
+        iframe[src*="google.com/maps"] {
+            width: 500px;
+        }
+
+    }
+
+    @media (max-width: 568px) {
+        .main-contact {
+            margin-top: 4.2rem;
+        }
+
+        #contact-form {
+            max-width: 500px;
+        }
+
+        fieldset {
+            margin: -1rem auto;
+            max-width: 480px;
+        }
+
+        fieldset input,
+        textarea {
+            margin: 0.3rem auto;
+        }
+
+        h2 {
             font-size: 1.3rem;
         }
 
-        .address a {
-            cursor: pointer;
-            text-decoration: underline;
-            color: rgba(219, 103, 8, 0.842)
+        h4 {
+            font-size: 1rem;
         }
 
-        .address a:hover {
-            color: rgba(219, 103, 8, 1);
+        p {
+            font-size: 1rem;
         }
 
-        #contact-received-message {
-            color: green;
-            text-align: center;
-            margin-top: 2rem;
+
+        iframe[src*="google.com/maps"] {
+            width: 320px;
         }
-
-        #contact-received-message-err {
-            color: red;
-            text-align: center;
-            margin-bottom: -1rem;
-        }
-
-        @media (max-width: 920px) {
-            #contact-form {
-                max-width: 800px;
-                margin: 0 1rem 0 1rem;
-                padding: 1rem;
-            }
-
-            iframe {
-                width: 600px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-contact {
-                margin-top: 4rem;
-            }
-
-            #contact-form {
-                max-width: 650px;
-                margin-top: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            fieldset {
-                margin: -3rem 1rem 0.5rem 1rem;
-                max-width: 600px;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .contact-icon {
-                width: 35px;
-                height: 35px;
-            }
-
-            h4 {
-                font-size: 1.2rem;
-            }
-
-            p {
-                font-size: 1rem;
-            }
-
-            iframe {
-                width: 500px;
-            }
-
-        }
-
-        @media (max-width: 568px) {
-            .main-contact {
-                margin-top: 4.2rem;
-            }
-
-            #contact-form {
-                max-width: 500px;
-            }
-
-            fieldset {
-                margin: -3rem 0 -1rem 0;
-                max-width: 500px;
-            }
-
-            fieldset input {
-                margin-top: 0.3rem;
-                margin-bottom: 0.3rem;
-            }
-
-            h2 {
-                font-size: 1.3rem;
-            }
-
-            h4 {
-                font-size: 1rem;
-            }
-
-            p {
-                font-size: 1rem;
-            }
-
-
-            iframe {
-                width: 320px;
-            }
-        }
+    }
     </style>
     <script src="script.js" defer></script>
     <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
 
-        gtag('config', 'G-HH5R04T2BW', {
-            'cookie_domain': 'sunnyspotholidays.com.au'
-        });
+    gtag('config', 'G-HH5R04T2BW', {
+        'cookie_domain': 'sunnyspotholidays.com.au'
+    });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -390,19 +423,27 @@ This is an automated notification from sunnyspotholidays.com.au',
                 <h2 class="contact-header">Contact Us</h2>
             </div>
             <fieldset class="contact">
-                <p id="contact-received-message"><?php echo $receivedMessage; ?></p>
-                <p id="contact-received-message-err"><?php echo $receivedMessageErr; ?></p>
-                <input type="text" name="contact-name" id="contact-name" placeholder="Full Name" required />
+                <?php if (!empty($receivedMessage)): ?>
+                <p id="contact-received-message"><?php echo htmlspecialchars($receivedMessage); ?></p>
+                <?php endif; ?>
+                <?php if (!empty($receivedMessageErr)): ?>
+                <p id="contact-received-message-err"><?php echo htmlspecialchars($receivedMessageErr); ?></p>
+                <?php endif; ?>
+                <input type="text" name="contact-name" id="contact-name" placeholder="Full Name"
+                    value="<?php echo htmlspecialchars($_POST['contact-name'] ?? ''); ?>" required />
                 <input type="text" name="contact-phone" id="contact-phone" placeholder="Phone Number"
-                    pattern="[0-9]{9,11}" required
-                    oninvalid="this.setCustomValidity('Please enter a valid phone number')"
+                    value="<?php echo htmlspecialchars($_POST['contact-phone'] ?? ''); ?>" pattern="[0-9]{9,11}"
+                    required oninvalid="this.setCustomValidity('Please enter a valid phone number')"
                     oninput="this.setCustomValidity('')" />
                 <input type="email" name="contact-email" id="contact-email" placeholder="Email"
+                    value="<?php echo htmlspecialchars($_POST['contact-email'] ?? ''); ?>"
                     pattern="[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+" required
                     oninvalid="this.setCustomValidity('Please enter a valid email')"
                     oninput="this.setCustomValidity('')" />
                 <textarea name="contact-message" id="contact-message" placeholder="Please leave your message"
-                    required></textarea>
+                    required><?php echo htmlspecialchars($_POST['contact-message'] ?? ''); ?></textarea>
+                <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY']); ?>">
+                </div>
                 <button type="submit" class="send-us" id="contactButton">Send Us</button>
             </fieldset>
             <div class="address">
@@ -430,7 +471,6 @@ This is an automated notification from sunnyspotholidays.com.au',
             <img src="images/twitter-icon.png" alt="icon-twitter" id="twitter">
         </div>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 
