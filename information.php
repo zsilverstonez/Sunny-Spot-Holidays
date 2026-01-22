@@ -386,7 +386,6 @@
             <img src="images/twitter-icon.png" alt="icon-twitter" id="twitter">
         </div>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
         <img src="images/author.png" alt="author" class="author">
     </footer>
     <script src="script.js"></script>
