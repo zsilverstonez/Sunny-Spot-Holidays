@@ -6,7 +6,7 @@
     }
     // Only allow logged-in users
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-        header("Location: login.php");
+        header("Location: admin/login.php");
         exit;
     }
     // Include connection to database
@@ -243,335 +243,335 @@
             href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
             rel="stylesheet">
         <style>
-            .cabin-details {
-                width: 100%;
-                max-width: 1400px;
-                height: 100%;
-                padding: 2rem;
-                margin: 7rem auto 3rem auto;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                background-color: white;
-                font-family: roboto, sans-serif;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
+        .cabin-details {
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            padding: 2rem;
+            margin: 7rem auto 3rem auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            background-color: white;
+            font-family: roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-            .cabin-header {
-                display: flex;
-                gap: 1rem;
-                justify-content: center;
-            }
+        .cabin-header {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
 
-            .cabin-selection {
-                width: 350px;
-                height: 50px;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 6px;
-                font-size: 1rem;
-                padding: 0 0.5rem;
-                margin-bottom: 1rem;
-                color: black;
-            }
+        .cabin-selection {
+            width: 350px;
+            height: 50px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            font-size: 1rem;
+            padding: 0 0.5rem;
+            margin-bottom: 1rem;
+            color: black;
+        }
 
-            .cabin-display {
-                width: 100%;
-                max-width: 900px;
-                height: 100%;
-                display: none;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin-left: -2rem;
-            }
+        .cabin-display {
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: -2rem;
+        }
 
-            .add-new-cabin {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin-left: -2rem;
-            }
+        .add-new-cabin {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: -2rem;
+        }
 
-            h2 {
-                text-align: center;
-                margin-left: 1rem;
-            }
+        h2 {
+            text-align: center;
+            margin-left: 1rem;
+        }
 
-            label {
-                width: 30%;
-                font-weight: bold;
-            }
+        label {
+            width: 30%;
+            font-weight: bold;
+        }
 
-            input,
-            textarea {
-                width: 100%;
-                height: 100%;
-                font-size: 1.1rem;
-                border: none;
-                text-align: center;
-            }
+        input,
+        textarea {
+            width: 100%;
+            height: 100%;
+            font-size: 1.1rem;
+            border: none;
+            text-align: center;
+        }
 
-            textarea {
-                padding: 0.5rem 0.3rem;
-                text-align: center;
-            }
+        textarea {
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+        }
 
-            button:hover {
-                background-color: rgba(255, 115, 0, 0.9);
-            }
+        button:hover {
+            background-color: rgba(255, 115, 0, 0.9);
+        }
 
-            .message {
-                color: red;
-                text-align: center;
-                font-weight: bold;
-                margin: 1rem;
-                margin-bottom: 2rem;
-            }
+        .message {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+            margin: 1rem;
+            margin-bottom: 2rem;
+        }
 
-            .messageSuccess {
-                color: green;
-                text-align: center;
-                font-weight: bold;
-                margin: 1rem;
-                margin-bottom: 2rem;
-            }
+        .messageSuccess {
+            color: green;
+            text-align: center;
+            font-weight: bold;
+            margin: 1rem;
+            margin-bottom: 2rem;
+        }
 
+        .form-divider {
+            display: flex;
+            align-items: center;
+            width: 900px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 0.7rem;
+
+        }
+
+        .cabin-top {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem;
+            gap: 1rem;
+        }
+
+        .form-divider select {
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+
+        .form-divider select option {
+            font-weight: 600;
+        }
+
+        .form-divider:last-child {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .photo-container {
+            display: flex;
+            flex-direction: column;
+            margin: 0.5rem auto;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .form-description {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 1.5rem 0 1rem 2rem;
+            width: 900px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 1rem;
+
+        }
+
+        .inclusion {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 300px;
+            margin: 2rem auto 1rem auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+        }
+
+        .inclusion-wrapper {
+            margin-left: 2rem;
+        }
+
+        .inclusion table {
+            border-collapse: collapse;
+        }
+
+        .inclusion table th,
+        .inclusion table td {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 1rem;
+        }
+
+        .inclusion table th:first-child {
+            border-top: none;
+            border-left: none;
+        }
+
+        .inclusion table th:last-child {
+            border-top: none;
+            border-right: none;
+        }
+
+        .inclusion table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .inclusion table tr td:first-child {
+            border-left: none;
+        }
+
+        .inclusion table tr td:last-child {
+            border-right: none;
+        }
+
+        .logout {
+            display: block;
+            width: 100px;
+            padding: 0.5rem 1rem;
+            margin: 1rem;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            background-color: rgba(95, 62, 4, 1);
+        }
+
+        .logout:hover {
+            background-color: rgba(70, 45, 3, 1);
+        }
+
+        .add-cabin,
+        .update-button,
+        .delete-button,
+        .back {
+            display: flex;
+            width: 140px;
+            height: 40px;
+            padding: 0 0.5rem;
+            margin: 1rem;
+            margin-left: 3rem;
+            border: 1px solid #ccc;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            background-color: rgba(255, 115, 0, 0.77);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .button-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .add-cabin {
+            background-color: rgba(37, 170, 4, 0.77);
+            width: 165px;
+            min-height: 40px;
+            padding: 0 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .add-cabin:hover {
+            background-color: rgba(24, 110, 3, 0.77);
+        }
+
+        #update-button:hover {
+            background-color: rgba(255, 115, 0, 1);
+        }
+
+        .back {
+            width: 100px;
+            background-color: rgba(37, 170, 4, 0.77);
+        }
+
+        .back:hover {
+            background-color: rgba(24, 110, 3, 0.77);
+        }
+
+        .delete-button {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .delete-button:hover {
+            background-color: rgba(0, 0, 0, 1);
+        }
+
+        @media (max-width: 900px) {
+
+            .form-description,
             .form-divider {
-                display: flex;
-                align-items: center;
-                width: 900px;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 6px;
-                padding: 0.7rem;
+                width: 700px;
+            }
+        }
 
+        @media (max-width: 768px) {
+
+            .form-description,
+            .form-divider {
+                width: 500px;
+            }
+        }
+
+        @media (max-width: 568px) {
+
+            .form-description,
+            .form-divider {
+                width: 350px;
             }
 
-            .cabin-top {
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin: 1rem;
-                gap: 1rem;
-            }
-
-            .form-divider select {
-                border: 1px solid rgba(0, 0, 0, 0.15);
-                font-weight: 600;
-                padding: 0.5rem;
-                border-radius: 6px;
-            }
-
-            .form-divider select option {
-                font-weight: 600;
-            }
-
-            .form-divider:last-child {
-                display: flex;
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .photo-container {
-                display: flex;
-                flex-direction: column;
-                margin: 0.5rem auto;
-                align-items: center;
-                justify-content: center;
-                gap: 1rem;
+            .photo-container img {
+                width: 100px;
+                height: 80px;
             }
 
             .form-description {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                margin: 1.5rem 0 1rem 2rem;
-                width: 900px;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 6px;
-                padding: 1rem;
-
+                height: 180px;
             }
 
-            .inclusion {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-                max-width: 300px;
-                margin: 2rem auto 1rem auto;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 6px;
-            }
-
-            .inclusion-wrapper {
-                margin-left: 2rem;
-            }
-
-            .inclusion table {
-                border-collapse: collapse;
-            }
-
-            .inclusion table th,
-            .inclusion table td {
-                width: 100%;
-                border: 1px solid #ccc;
-                padding: 1rem;
-            }
-
-            .inclusion table th:first-child {
-                border-top: none;
-                border-left: none;
-            }
-
-            .inclusion table th:last-child {
-                border-top: none;
-                border-right: none;
-            }
-
-            .inclusion table tr:last-child td {
-                border-bottom: none;
-            }
-
-            .inclusion table tr td:first-child {
-                border-left: none;
-            }
-
-            .inclusion table tr td:last-child {
-                border-right: none;
-            }
-
-            .logout {
-                display: block;
-                width: 100px;
-                padding: 0.5rem 1rem;
-                margin: 1rem;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 10px;
+            .inclusion table td:nth-child(2) {
                 text-align: center;
-                text-decoration: none;
-                color: white;
-                background-color: rgba(95, 62, 4, 1);
+                vertical-align: middle;
             }
 
-            .logout:hover {
-                background-color: rgba(70, 45, 3, 1);
+            .inclusion table input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
             }
-
-            .add-cabin,
-            .update-button,
-            .delete-button,
-            .back {
-                display: flex;
-                width: 140px;
-                height: 40px;
-                padding: 0 0.5rem;
-                margin: 1rem;
-                margin-left: 3rem;
-                border: 1px solid #ccc;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 10px;
-                text-align: center;
-                justify-content: center;
-                align-items: center;
-                text-decoration: none;
-                color: white;
-                background-color: rgba(255, 115, 0, 0.77);
-                cursor: pointer;
-                font-size: 1rem;
-            }
-
-            .button-wrapper {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .add-cabin {
-                background-color: rgba(37, 170, 4, 0.77);
-                width: 165px;
-                min-height: 40px;
-                padding: 0 0.5rem;
-                margin-left: 1rem;
-            }
-
-            .add-cabin:hover {
-                background-color: rgba(24, 110, 3, 0.77);
-            }
-
-            #update-button:hover {
-                background-color: rgba(255, 115, 0, 1);
-            }
-
-            .back {
-                width: 100px;
-                background-color: rgba(37, 170, 4, 0.77);
-            }
-
-            .back:hover {
-                background-color: rgba(24, 110, 3, 0.77);
-            }
-
-            .delete-button {
-                background-color: rgba(0, 0, 0, 0.7);
-            }
-
-            .delete-button:hover {
-                background-color: rgba(0, 0, 0, 1);
-            }
-
-            @media (max-width: 900px) {
-
-                .form-description,
-                .form-divider {
-                    width: 700px;
-                }
-            }
-
-            @media (max-width: 768px) {
-
-                .form-description,
-                .form-divider {
-                    width: 500px;
-                }
-            }
-
-            @media (max-width: 568px) {
-
-                .form-description,
-                .form-divider {
-                    width: 350px;
-                }
-
-                .photo-container img {
-                    width: 100px;
-                    height: 80px;
-                }
-
-                .form-description {
-                    height: 180px;
-                }
-
-                .inclusion table td:nth-child(2) {
-                    text-align: center;
-                    vertical-align: middle;
-                }
-
-                .inclusion table input[type="checkbox"] {
-                    width: 20px;
-                    height: 20px;
-                }
-            }
+        }
         </style>
         <script src="script.js" defer></script>
     </head>
@@ -611,17 +611,17 @@
                         aria-label="Cabin Selection">
                         <option value="" disabled selected>Select a cabin type</option>
                         <?php foreach ($cabins as $cabin): ?>
-                            <option value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
-                                <?php echo htmlspecialchars($cabin['cabinType']); ?>
-                            </option>
+                        <option value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
+                            <?php echo htmlspecialchars($cabin['cabinType']); ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <?php if (!empty($messageCabin)): ?>
-                    <p class="message"><?php echo htmlspecialchars($messageCabin); ?></p>
+                <p class="message"><?php echo htmlspecialchars($messageCabin); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($messageCabinSuccess)): ?>
-                    <p class="messageSuccess"><?php echo htmlspecialchars($messageCabinSuccess); ?></p>
+                <p class="messageSuccess"><?php echo htmlspecialchars($messageCabinSuccess); ?></p>
                 <?php endif; ?>
                 <!-- ADD NEW CABIN -->
                 <div class="add-new-cabin">
@@ -683,12 +683,12 @@
                                         <th>Available</th>
                                     </tr>
                                     <?php foreach ($inclusions as $inclusion) : ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($inclusion['incName']) ?></td>
-                                            <td><input type="checkbox" name="incID[]"
-                                                    value="<?php echo htmlspecialchars($inclusion['incID']); ?>">
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($inclusion['incName']) ?></td>
+                                        <td><input type="checkbox" name="incID[]"
+                                                value="<?php echo htmlspecialchars($inclusion['incID']); ?>">
+                                        </td>
+                                    </tr>
                                     <?php endforeach; ?>
                                 </table>
                             </div>
@@ -698,74 +698,74 @@
                 </form>
                 <!-- EXISTING CABINS -->
                 <?php foreach ($cabins as $cabin): ?>
-                    <!-- data-id is an HTML attribute that can hold a dynamic id for a loop, while, for to use in Javascript-->
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                    <div class="cabin-display" data-id="<?php echo $cabin['cabinID']; ?>">
-                        <form method="POST" enctype="multipart/form-data"
-                            onsubmit="return confirm('Are you sure about the change?');">
-                            <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
-                            <div class="cabin-top">
-                                <input type="hidden" name="cabinID[]"
-                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
-                                <div class="form-divider">
-                                    <label>Cabin Type: </label>
-                                    <input type="text" name="cabinType[]"
-                                        value="<?php echo htmlspecialchars($cabin['cabinType']); ?>" required>
-                                </div>
-                                <div class="form-divider">
-                                    <label>Price Per Night: </label>
-                                    <input type="number" id="oldPricePerNight" name="pricePerNight[]"
-                                        value="<?php echo htmlspecialchars($cabin['pricePerNight']); ?>" step="1" required>
-                                    <select class="oldAdjustNight">
-                                        <option value="" disabled selected>Auto Adjust</option>
-                                        <option value="2">200%</option>
-                                        <option value="1.75">175%</option>
-                                        <option value="1.5">150%</option>
-                                        <option value="1.25">125%</option>
-                                        <option value="1">100%</option>
-                                        <option value="0.75">75%</option>
-                                        <option value="0.5">50%</option>
-                                    </select>
-                                </div>
-                                <div class="form-divider">
-                                    <label>Price Per Week: </label>
-                                    <input type="number" id="oldPricePerWeek" name="pricePerWeek[]"
-                                        value="<?php echo htmlspecialchars($cabin['pricePerWeek']); ?>" step="1" required>
-                                    <select class="oldAdjustWeek">
-                                        <option value="" disabled selected>Auto Adjust</option>
-                                        <option value="2">200%</option>
-                                        <option value="1.75">175%</option>
-                                        <option value="1.5">150%</option>
-                                        <option value="1.25">125%</option>
-                                        <option value="1">100%</option>
-                                        <option value="0.75">75%</option>
-                                        <option value="0.5">50%</option>
-                                    </select>
-                                </div>
-                                <div class="form-divider">
-                                    <label>Photo: </label>
-                                    <div class="photo-container">
-                                        <img src="images/<?php echo htmlspecialchars($cabin['photo']); ?>" alt="Cabin Photo"
-                                            width="400px" height="300px">
-                                        <input type="file" name="photo[]">
-                                        <input type="hidden" name="photo_existing[]"
-                                            value="<?php echo htmlspecialchars($cabin['photo']); ?>">
-                                    </div>
+                <!-- data-id is an HTML attribute that can hold a dynamic id for a loop, while, for to use in Javascript-->
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <div class="cabin-display" data-id="<?php echo $cabin['cabinID']; ?>">
+                    <form method="POST" enctype="multipart/form-data"
+                        onsubmit="return confirm('Are you sure about the change?');">
+                        <!-- Use enctype="multipart/form-data" in case there is a file uploading -->
+                        <div class="cabin-top">
+                            <input type="hidden" name="cabinID[]"
+                                value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
+                            <div class="form-divider">
+                                <label>Cabin Type: </label>
+                                <input type="text" name="cabinType[]"
+                                    value="<?php echo htmlspecialchars($cabin['cabinType']); ?>" required>
+                            </div>
+                            <div class="form-divider">
+                                <label>Price Per Night: </label>
+                                <input type="number" id="oldPricePerNight" name="pricePerNight[]"
+                                    value="<?php echo htmlspecialchars($cabin['pricePerNight']); ?>" step="1" required>
+                                <select class="oldAdjustNight">
+                                    <option value="" disabled selected>Auto Adjust</option>
+                                    <option value="2">200%</option>
+                                    <option value="1.75">175%</option>
+                                    <option value="1.5">150%</option>
+                                    <option value="1.25">125%</option>
+                                    <option value="1">100%</option>
+                                    <option value="0.75">75%</option>
+                                    <option value="0.5">50%</option>
+                                </select>
+                            </div>
+                            <div class="form-divider">
+                                <label>Price Per Week: </label>
+                                <input type="number" id="oldPricePerWeek" name="pricePerWeek[]"
+                                    value="<?php echo htmlspecialchars($cabin['pricePerWeek']); ?>" step="1" required>
+                                <select class="oldAdjustWeek">
+                                    <option value="" disabled selected>Auto Adjust</option>
+                                    <option value="2">200%</option>
+                                    <option value="1.75">175%</option>
+                                    <option value="1.5">150%</option>
+                                    <option value="1.25">125%</option>
+                                    <option value="1">100%</option>
+                                    <option value="0.75">75%</option>
+                                    <option value="0.5">50%</option>
+                                </select>
+                            </div>
+                            <div class="form-divider">
+                                <label>Photo: </label>
+                                <div class="photo-container">
+                                    <img src="images/<?php echo htmlspecialchars($cabin['photo']); ?>" alt="Cabin Photo"
+                                        width="400px" height="300px">
+                                    <input type="file" name="photo[]">
+                                    <input type="hidden" name="photo_existing[]"
+                                        value="<?php echo htmlspecialchars($cabin['photo']); ?>">
                                 </div>
                             </div>
-                            <div class="form-description">
-                                <label>Description: </label>
-                                <textarea name="cabinDescription[]"
-                                    required><?php echo htmlspecialchars($cabin['cabinDescription']); ?></textarea>
-                            </div>
-                            <div class="inclusion-wrapper">
-                                <div class="inclusion">
-                                    <table>
-                                        <tr>
-                                            <th>Inclusion</th>
-                                            <th>Available</th>
-                                        </tr>
-                                        <?php foreach ($inclusions as $inclusion) :
+                        </div>
+                        <div class="form-description">
+                            <label>Description: </label>
+                            <textarea name="cabinDescription[]"
+                                required><?php echo htmlspecialchars($cabin['cabinDescription']); ?></textarea>
+                        </div>
+                        <div class="inclusion-wrapper">
+                            <div class="inclusion">
+                                <table>
+                                    <tr>
+                                        <th>Inclusion</th>
+                                        <th>Available</th>
+                                    </tr>
+                                    <?php foreach ($inclusions as $inclusion) :
                                             // Check if this inclusion belongs to the current cabin
                                             $checked = '';
                                             foreach ($cabinInclusions as $cabinInclusion) {
@@ -775,35 +775,35 @@
                                                 }
                                             }
                                         ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($inclusion['incName']); ?></td>
-                                                <td>
-                                                    <!--name="incID[<?php echo $cabin['cabinID']; ?>][]" means getting the id of cabin in cabins to insert inclusion, [] at the end to create an array so each cabin can have more than one inclusion-->
-                                                    <input type="checkbox"
-                                                        name="incID[<?php echo htmlspecialchars($cabin['cabinID']); ?>][]"
-                                                        value="<?php echo htmlspecialchars($inclusion['incID']); ?>"
-                                                        <?php echo htmlspecialchars($checked); ?>>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </table>
-                                </div>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($inclusion['incName']); ?></td>
+                                        <td>
+                                            <!--name="incID[<?php echo $cabin['cabinID']; ?>][]" means getting the id of cabin in cabins to insert inclusion, [] at the end to create an array so each cabin can have more than one inclusion-->
+                                            <input type="checkbox"
+                                                name="incID[<?php echo htmlspecialchars($cabin['cabinID']); ?>][]"
+                                                value="<?php echo htmlspecialchars($inclusion['incID']); ?>"
+                                                <?php echo htmlspecialchars($checked); ?>>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </table>
                             </div>
-                            <div class="button-wrapper"><button type="submit" class="update-button"
-                                    value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Update
-                                    Cabin</button></div>
-                        </form>
-                        <a class="back" href="admin_dashboard_cabin.php">Back</a>
-                        <form method="POST" onsubmit="return confirm('Are you sure about deleting this cabin?');">
-                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                            <input type="hidden" name="delete_id"
-                                value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
-                            <div class="button-wrapper"><button type="submit" class="delete-button"
-                                    value="<?php echo $cabin['cabinID']; ?>">Delete Cabin</button></div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="button-wrapper"><button type="submit" class="update-button"
+                                value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Update
+                                Cabin</button></div>
+                    </form>
+                    <a class="back" href="admin_dashboard_cabin.php">Back</a>
+                    <form method="POST" onsubmit="return confirm('Are you sure about deleting this cabin?');">
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                        <input type="hidden" name="delete_id"
+                            value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">
+                        <div class="button-wrapper"><button type="submit" class="delete-button"
+                                value="<?php echo $cabin['cabinID']; ?>">Delete Cabin</button></div>
+                    </form>
+                </div>
                 <?php endforeach; ?>
-                <a class="logout" href="logout.php">Log Out</a>
+                <a class="logout" href="admin/logout.php">Log Out</a>
             </div>
         </main>
         <footer>
@@ -813,7 +813,7 @@
                 </a>
             </p>
             <p>© 2025 Copyright Sunny Spot Holidays</p>
-            <li id="login"><a href="login.php" class="active">Admin</a></li>
+            <a id="login" href="admin/login.php">Admin</a>
             <img src="images/author.png" alt="author" class="author">
         </footer>
     </body>
