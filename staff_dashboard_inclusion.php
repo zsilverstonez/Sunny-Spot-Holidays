@@ -439,9 +439,9 @@ $connect->close();
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -449,12 +449,12 @@ $connect->close();
         </div>
         <nav>
             <ul>
-                <li class="nav-booking"><a href="staff_dashboard_booking.php">Booking</a></li>
-                <li class="nav-availability"><a href="staff_dashboard_availability.php">Availability</a>
+                <li class="nav-booking"><a href="staff_dashboard_booking">Booking</a></li>
+                <li class="nav-availability"><a href="staff_dashboard_availability">Availability</a>
                 </li>
-                <li class="nav-contact"><a href="staff_dashboard_contact.php">Contact</a></li>
-                <li class="nav-cabin"><a href="staff_dashboard_cabin.php">Cabin</a></li>
-                <li class="nav-inclusion"><a href="staff_dashboard_inclusion.php" class="active">Inclusion</a></li>
+                <li class="nav-contact"><a href="staff_dashboard_contact">Contact</a></li>
+                <li class="nav-cabin"><a href="staff_dashboard_cabin">Cabin</a></li>
+                <li class="nav-inclusion"><a href="staff_dashboard_inclusion" class="active">Inclusion</a></li>
             </ul>
             <div class="hamburger-menu">
                 <span></span>
@@ -531,7 +531,7 @@ $connect->close();
                 </div>
                 <button type="submit" name="action" value="insert" class="insert-button">Insert</button>
             </form>
-            <a class="logout" href="admin/logout.php">Log Out</a>
+            <a class="logout" href="admin/logout">Log Out</a>
         </div>
     </main>
 
@@ -542,7 +542,7 @@ $connect->close();
             </a>
         </p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <a id="login" href="admin/login.php">Admin</a>
+        <a id="login" href="admin/login">Admin</a>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
