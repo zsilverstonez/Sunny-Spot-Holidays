@@ -161,39 +161,42 @@
             font-size: 1rem;
         }
     }
-    
-        @media (max-width: 568px) {
+
+    @media (max-width: 568px) {
         h2 {
-             width: 375px;
+            width: 375px;
             margin-top: 5.5rem;
             font-size: 1.3rem;
         }
-        }
+    }
     </style>
     <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-HH5R04T2BW', {
-    'cookie_domain': 'sunnyspotholidays.com.au'
-  });
-</script>
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-HH5R04T2BW', {
+        'cookie_domain': 'sunnyspotholidays.com.au'
+    });
+    </script>
 </head>
 
 <body>
     <?php
     $restaurantsAndCafes = [
         [
-            "image" => "images/Fare Cravin Cafe.avif",
-            "name" => "Fare Cravin’ Café",
+            "image" => "images/Fare Cravin Café.avif",
+            "name" => "Fare Cravin' Café",
             "description" => "A tranquil and cosy café with classic Aussie menu.<br>Open Monday to Friday 7am – 2pm. Saturday and Sunday 8am – 2pm.",
             "address" => "209 Brisbane Water Dr, Point Clare NSW 2250"
         ],
         [
-            "image" => "images/Little Piggy Eat & Drink Cafe.avif",
+            "image" => "images/Little Piggy Eat & Drink Café.avif",
             "name" => "This Little Piggy Eat & Drink Café",
             "description" => "A cute and artist café with healthy menu.<br>Open Monday to Friday 6:30am to 1:30pm and Saturday 7:30am – 1pm.",
             "address" => "7/51 Brisbane Water Drive &, Talinga Ave, Point Clare NSW 2250"
@@ -227,7 +230,7 @@
     <header>
         <div class="header-divider">
             <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
-             <div class="title-divider">
+            <div class="title-divider">
                 <a href="index.php" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
@@ -280,7 +283,6 @@
             <img src="images/twitter-icon.png" alt="icon-twitter" id="twitter">
         </div>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
         <img src="images/author.png" alt="author" class="author">
     </footer>
     <script src="script.js"></script>
