@@ -6,7 +6,7 @@
     }
     // Only allow logged-in users
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-        header("Location: admin/login.php");
+        header("Location: admin/login");
         exit;
     }
     // Include connection to database
@@ -579,9 +579,9 @@
     <body>
         <header>
             <div class="header-divider">
-                <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+                <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
                 <div class="title-divider">
-                    <a href="index.php" class="title">
+                    <a href="home" class="title">
                         <h1>Sunny Spot Holidays</h1>
                     </a>
                     <h3>This is a mock website only!</h3>
@@ -589,12 +589,12 @@
             </div>
             <nav>
                 <ul>
-                    <li class="nav-booking"><a href="staff_dashboard_booking.php">Booking</a></li>
-                    <li class="nav-availability"><a href="staff_dashboard_availability.php">Availability</a>
+                    <li class="nav-booking"><a href="staff_dashboard_booking">Booking</a></li>
+                    <li class="nav-availability"><a href="staff_dashboard_availability">Availability</a>
                     </li>
-                    <li class="nav-contact"><a href="staff_dashboard_contact.php">Contact</a></li>
-                    <li class="nav-cabin"><a href="staff_dashboard_cabin.php" class="active">Cabin</a></li>
-                    <li class="nav-inclusion"><a href="staff_dashboard_inclusion.php">Inclusion</a></li>
+                    <li class="nav-contact"><a href="staff_dashboard_contact">Contact</a></li>
+                    <li class="nav-cabin"><a href="staff_dashboard_cabin" class="active">Cabin</a></li>
+                    <li class="nav-inclusion"><a href="staff_dashboard_inclusion">Inclusion</a></li>
                 </ul>
                 <div class="hamburger-menu">
                     <span></span>
@@ -793,7 +793,7 @@
                                 value="<?php echo htmlspecialchars($cabin['cabinID']); ?>">Update
                                 Cabin</button></div>
                     </form>
-                    <a class="back" href="admin_dashboard_cabin.php">Back</a>
+                    <a class="back" href="admin_dashboard_cabin">Back</a>
                     <form method="POST" onsubmit="return confirm('Are you sure about deleting this cabin?');">
                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <input type="hidden" name="delete_id"
@@ -803,7 +803,7 @@
                     </form>
                 </div>
                 <?php endforeach; ?>
-                <a class="logout" href="admin/logout.php">Log Out</a>
+                <a class="logout" href="admin/logout">Log Out</a>
             </div>
         </main>
         <footer>
@@ -813,7 +813,7 @@
                 </a>
             </p>
             <p>© 2025 Copyright Sunny Spot Holidays</p>
-            <a id="login" href="admin/login.php">Admin</a>
+            <a id="login" href="admin/login">Admin</a>
             <img src="images/author.png" alt="author" class="author">
         </footer>
     </body>
