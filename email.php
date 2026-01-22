@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <p>We received a request to reset your password. Please click the link below to reset your password:</p>
 
 <p>
-    <a href='https://sunnyspotholidays.com.au/admin/reset_password.php?token=$token' 
+    <a href='https://sunnyspotholidays.com.au/admin/reset_password?token=$token' 
        style='color: #007bff; text-decoration: none; font-weight: bold;'>
        Reset Your Password
     </a>
@@ -184,9 +184,9 @@ $connect->close();
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -215,7 +215,7 @@ $connect->close();
                     <button type="submit">Submit</button>
                 </fieldset>
             </form>
-            <a class="back" href="login.php" <?php echo $linkLogIn; ?>>Back to Log in</a>
+            <a class="back" href="login" <?php echo $linkLogIn; ?>>Back to Log in</a>
         </article>
     </main>
     <footer>
@@ -225,7 +225,7 @@ $connect->close();
             </a>
         </p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
+        <li id="login"><a href="login">Admin</a></li>
         <img src="images/author.png" alt="author" class="author">
     </footer>
     <script src="script.js"></script>
