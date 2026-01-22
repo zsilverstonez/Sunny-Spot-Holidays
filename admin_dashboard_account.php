@@ -7,11 +7,11 @@ if (!isset($_SESSION['csrf_token'])) {
 
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: admin/login.php");
+    header("Location: admin/login");
     exit;
 }
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header("Location: admin/login.php");
+    header("Location: admin/login");
     exit;
 }
 // Include connection to database
@@ -422,9 +422,9 @@ $connect->close();
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -432,14 +432,14 @@ $connect->close();
         </div>
         <nav>
             <ul>
-                <li class="nav-booking"><a href="admin_dashboard_booking.php">Booking</a></li>
-                <li class="nav-availability"><a href="admin_dashboard_availability.php">Availability</a>
+                <li class="nav-booking"><a href="admin_dashboard_booking">Booking</a></li>
+                <li class="nav-availability"><a href="admin_dashboard_availability">Availability</a>
                 </li>
-                <li class="nav-contact"><a href="admin_dashboard_contact.php">Contact</a></li>
-                <li class="nav-cabin"><a href="admin_dashboard_cabin.php">Cabin</a></li>
-                <li class="nav-inclusion"><a href="admin_dashboard_inclusion.php">Inclusion</a></li>
-                <li class="nav-account"><a href="admin_dashboard_account.php" class="active">Account</a></li>
-                <li class="nav-log"><a href="admin_dashboard_log.php">Log</a></li>
+                <li class="nav-contact"><a href="admin_dashboard_contact">Contact</a></li>
+                <li class="nav-cabin"><a href="admin_dashboard_cabin">Cabin</a></li>
+                <li class="nav-inclusion"><a href="admin_dashboard_inclusion">Inclusion</a></li>
+                <li class="nav-account"><a href="admin_dashboard_account" class="active">Account</a></li>
+                <li class="nav-log"><a href="admin_dashboard_log">Log</a></li>
             </ul>
             <div class="hamburger-menu"><span></span><span></span><span></span></div>
         </nav>
@@ -540,7 +540,7 @@ $connect->close();
                         <button type="submit" class="update-user-button">Update User</button>
                     </div>
                 </form>
-                <a class="add-user" href="admin_dashboard_account.php">Back</a>
+                <a class="add-user" href="admin_dashboard_account">Back</a>
                 <form method="POST" onsubmit="return confirm('Are you sure about deleting this user?');">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <input type="hidden" name="staffID[]" value="<?php echo htmlspecialchars($user['staffID']); ?>">
@@ -553,7 +553,7 @@ $connect->close();
             </div>
             <?php endforeach; ?>
 
-            <a class="logout" href="admin/logout.php">Log Out</a>
+            <a class="logout" href="admin/logout">Log Out</a>
         </div>
     </main>
 
@@ -561,7 +561,7 @@ $connect->close();
         <p><a href="https://www.google.com/maps?q=50+Melaleuca+Cres,+Tascott+NSW+2250" target="_blank">50 Melaleuca
                 Cres, Tascott NSW 2250</a></p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <a id="login" href="admin/login.php">Admin</a>
+        <a id="login" href="admin/login">Admin</a>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
