@@ -19,8 +19,31 @@ $bookingError = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $receivedMessageErr = "Security validation failed. Please try again.";
+        $bookingError = "Security validation failed. Please try again.";
+    } elseif (empty($_POST['g-recaptcha-response'])) {
+        $bookingError = "Please complete the CAPTCHA.";
     } else {
+        // Verify reCAPTCHA using cURL
+        $secretKey = $_ENV['RECAPTCHA_SECRET_KEY'];
+        $captchaResponse = $_POST['g-recaptcha-response'];
+        $verifyURL = "https://www.google.com/recaptcha/api/siteverify";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $verifyURL);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+            'secret' => $secretKey,
+            'response' => $captchaResponse
+        ]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+
+        if (!$responseData || !$responseData['success']) {
+            $bookingError = "CAPTCHA verification failed. Please try again.";
+        } else {
 // Get input values for all booking variables
     $arrival = $_POST['arrival'] ?? '';
     $departure = $_POST['departure'] ?? '';
@@ -85,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validate email address
             if (!filter_var($safe_email, FILTER_VALIDATE_EMAIL)) {
-                $safe_email = 'noreply@your-domain-name';
+                $safe_email = 'noreply@sunnyspotholidays.com.au';
             }
 
             // Secure headers with MIME type
@@ -109,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Send notification to admin
             mail(
-                'your-admin-email',
+                $_ENV['ADMIN_EMAIL'],
                 $admin_subject,
                 $admin_message,
                 $headers
@@ -146,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     }
-    
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -308,6 +331,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         font-weight: bold;
     }
 
+    .g-recaptcha {
+        display: flex;
+        justify-content: center;
+        margin: 1rem 0;
+    }
+
     .confirm-booking {
         display: none;
         position: fixed;
@@ -407,6 +436,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'cookie_domain': 'sunnyspotholidays.com.au'
     });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -518,6 +548,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     oninvalid="this.setCustomValidity('Please enter a valid email')"
                     oninput="this.setCustomValidity('')" />
                 <textarea name="booking-message" id="booking-message" placeholder="Please leave any message"></textarea>
+                <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($_ENV['RECAPTCHA_SITE_KEY']); ?>"></div>
                 <button type="button" id="booking-button">Book Now</button>
             </fieldset>
         </form>
@@ -552,7 +583,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <img src="images/twitter-icon.png" alt="icon-twitter" id="twitter">
         </div>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
