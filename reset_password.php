@@ -53,90 +53,90 @@
          href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
          rel="stylesheet">
      <style>
-         .main-admin {
-             padding-bottom: 4rem;
-             padding-top: 2rem;
-         }
+     .main-admin {
+         padding-bottom: 4rem;
+         padding-top: 2rem;
+     }
 
-         article {
-             width: 100%;
-             margin-top: 4rem;
-             max-width: 550px;
-             padding: 1rem;
-         }
+     article {
+         width: 100%;
+         margin-top: 4rem;
+         max-width: 550px;
+         padding: 1rem;
+     }
 
-         .main-admin h2 {
-             display: flex;
-             justify-content: center;
-             margin-top: 0;
-             margin-bottom: -0.2rem;
-         }
+     .main-admin h2 {
+         display: flex;
+         justify-content: center;
+         margin-top: 0;
+         margin-bottom: -0.2rem;
+     }
 
-         fieldset {
-             display: flex;
-             width: 100%;
-             flex-direction: column;
-             justify-content: center;
-             gap: 0.2rem;
-             border: none;
-         }
+     fieldset {
+         display: flex;
+         width: 100%;
+         flex-direction: column;
+         justify-content: center;
+         gap: 0.2rem;
+         border: none;
+     }
 
-         input,
-         button {
-             padding: 0.5rem;
-             border: 1px solid #ccc;
-             border-radius: 6px;
-             font-size: 1rem;
-             margin: 0.25rem;
-         }
+     input,
+     button {
+         padding: 0.5rem;
+         border: 1px solid #ccc;
+         border-radius: 6px;
+         font-size: 1rem;
+         margin: 0.25rem;
+     }
 
-         button {
-             background-color: rgba(219, 103, 8, 0.842);
-             color: white;
-             cursor: pointer;
-         }
+     button {
+         background-color: rgba(219, 103, 8, 0.842);
+         color: white;
+         cursor: pointer;
+     }
 
-         button:hover {
-             background-color: rgba(219, 103, 8, 1);
-         }
+     button:hover {
+         background-color: rgba(219, 103, 8, 1);
+     }
 
-         .error {
-             text-align: center;
-             font-style: italic;
-             padding: 0;
-             margin: 0;
-             color: rgba(219, 103, 8, 0.842);
-         }
+     .error {
+         text-align: center;
+         font-style: italic;
+         padding: 0;
+         margin: 0;
+         color: rgba(219, 103, 8, 0.842);
+     }
      </style>
      <script>
-         // Display password message
-         document.addEventListener("DOMContentLoaded", () => {
-             const password = document.getElementById("password");
-             const password2 = document.getElementById("password2");
-             const passwordMessage = document.querySelector(".password-message");
+     // Display password message
+     document.addEventListener("DOMContentLoaded", () => {
+         const password = document.getElementById("password");
+         const password2 = document.getElementById("password2");
+         const passwordMessage = document.querySelector(".password-message");
 
-             function checkPassword() {
-                 if (password.value !== password2.value) {
-                     passwordMessage.textContent = "Passwords must match";
-                     return;
-                 } else {
-                     passwordMessage.textContent = "";
-                     return;
-                 }
+         function checkPassword() {
+             if (password.value !== password2.value) {
+                 passwordMessage.textContent = "Passwords must match";
+                 return;
+             } else {
+                 passwordMessage.textContent = "";
+                 return;
              }
+         }
 
-             password.addEventListener("input", checkPassword);
-             password2.addEventListener("input", checkPassword);
-         })
+         password.addEventListener("input", checkPassword);
+         password2.addEventListener("input", checkPassword);
+     })
      </script>
  </head>
 
  <body>
      <header>
          <div class="header-divider">
-             <a href="../index.php"><img src="../images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+             <a href="../home"><img src="../images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
              <div class="title-divider">
-                 <a href="../index.php" class="title">
+                 <a href="../home" class="title">
                      <h1>Sunny Spot Holidays</h1>
                  </a>
                  <h3>This is a mock website only!</h3>
@@ -147,14 +147,16 @@
          <article>
              <h2>Reset Password</h2>
              <?php if (!empty($message)): ?>
-                 <p class="error"><?php echo str_replace('&lt;br&gt;', '<br>', htmlspecialchars($message, ENT_QUOTES, 'UTF-8')); ?></p>
+             <p class="error">
+                 <?php echo str_replace('&lt;br&gt;', '<br>', htmlspecialchars($message, ENT_QUOTES, 'UTF-8')); ?></p>
              <?php endif; ?>
              <form method="post" action="">
                  <fieldset class="login">
                      <input type="text" name="username" id="username" placeholder="Enter Username" required>
                      <input type="text" name="code" id="code" placeholder="Enter Reset Code" required>
                      <input type="password" name="password" id="password" placeholder="Enter Password" required>
-                     <input type="password" name="password2" id="password2" placeholder="Confirm Your Password" required>
+                     <input type="password" name="password2" id="password2" placeholder="Confirm Your Password"
+                         required>
                      <p class="password-message"
                          style="margin: 0; padding-left: 0.5rem; font-style: italic; font-size: 12px; color: rgba(219, 103, 8, 0.842);">
                      </p>
