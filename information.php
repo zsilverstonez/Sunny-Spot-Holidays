@@ -16,200 +16,200 @@
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <style>
-        .information-header-divider {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: -1.5rem;
+    .information-header-divider {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: -1.5rem;
+    }
+
+    .information-icon {
+        width: 50px;
+    }
+
+    .divider {
+        margin: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        border-bottom: 4px solid rgba(92, 53, 3, 0.16);
+    }
+
+    .cabin-divider {
+        column-count: 2;
+        column-gap: 0.3rem;
+    }
+
+    .divider:last-child {
+        border: none;
+    }
+
+    .divider li {
+        font-size: 1.2rem;
+        padding: 0.2rem;
+        font-family: roboto, sans-serif;
+    }
+
+    .article-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem;
+    }
+
+    article {
+        width: 100%;
+        max-width: 900px;
+        flex: 1;
+    }
+
+    .image-details {
+        position: relative;
+    }
+
+    .images {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .image {
+        width: 500px;
+        height: 400px;
+        flex-shrink: 0;
+        margin-top: 2rem;
+    }
+
+    .images-left {
+        animation: slideFromLeft 1s ease-out forwards;
+    }
+
+    .images-right {
+        animation: slideFromRight 1s ease-out forwards;
+    }
+
+    @keyframes slideFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-100px);
         }
 
-        .information-icon {
-            width: 50px;
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
         }
 
-        .divider {
-            margin: 0.5rem;
-            padding: 0.5rem 1.5rem;
-            border-bottom: 4px solid rgba(92, 53, 3, 0.16);
+        to {
+            opacity: 1;
+            transform: translateX(0);
         }
+    }
 
-        .cabin-divider {
-            column-count: 2;
-            column-gap: 0.3rem;
+    .image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    }
+
+    .images p {
+        width: 300px;
+        font-size: 1rem;
+        font-family: roboto, sans-serif;
+        text-align: center;
+        color: white;
+        background-color: rgba(95, 62, 4, 1);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        font-weight: bold;
+        padding: 1rem;
+        position: absolute;
+        top: 96%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    @media (max-width: 1750px) {
+        .image {
+            width: 400px;
+            height: 350px;
         }
+    }
 
-        .divider:last-child {
-            border: none;
-        }
-
-        .divider li {
-            font-size: 1.2rem;
-            padding: 0.2rem;
-            font-family: roboto, sans-serif;
-        }
-
-        .article-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin: 2rem;
-        }
-
+    @media (max-width: 1600px) {
         article {
-            width: 100%;
-            max-width: 900px;
-            flex: 1;
-        }
-
-        .image-details {
-            position: relative;
+            max-width: 1300px;
         }
 
         .images {
-            display: flex;
+            display: none;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        article {
+            max-width: 1000px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .article-wrapper {
             flex-direction: column;
-            gap: 1rem;
-        }
-
-        .image {
-            width: 500px;
-            height: 400px;
-            flex-shrink: 0;
-            margin-top: 2rem;
-        }
-
-        .images-left {
-            animation: slideFromLeft 1s ease-out forwards;
-        }
-
-        .images-right {
-            animation: slideFromRight 1s ease-out forwards;
-        }
-
-        @keyframes slideFromLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-100px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideFromRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .image img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
-        }
-
-        .images p {
-            width: 300px;
-            font-size: 1rem;
-            font-family: roboto, sans-serif;
-            text-align: center;
-            color: white;
-            background-color: rgba(95, 62, 4, 1);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            font-weight: bold;
+            align-items: center;
+            max-width: 700px;
             padding: 1rem;
-            position: absolute;
-            top: 96%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            margin: 1rem 0.5rem;
         }
 
-        @media (max-width: 1750px) {
-            .image {
-                width: 400px;
-                height: 350px;
-            }
+        .information-icon {
+            width: 35px;
         }
 
-        @media (max-width: 1600px) {
-            article {
-                max-width: 1300px;
-            }
-
-            .images {
-                display: none;
-            }
+        h2 {
+            font-size: 1.4rem;
         }
 
-        @media (max-width: 1100px) {
-            article {
-                max-width: 1000px;
-            }
+        .divider h3 {
+            font-size: 1.1rem;
         }
 
-        @media (max-width: 768px) {
-            .article-wrapper {
-                flex-direction: column;
-                align-items: center;
-                max-width: 700px;
-                padding: 1rem;
-                margin: 1rem 0.5rem;
-            }
-
-            .information-icon {
-                width: 35px;
-            }
-
-            h2 {
-                font-size: 1.4rem;
-            }
-
-            .divider h3 {
-                font-size: 1.1rem;
-            }
-
-            .divider ul li {
-                font-size: 1rem;
-            }
+        .divider ul li {
+            font-size: 1rem;
         }
+    }
 
-        @media (max-width: 576px) {
-            .article-wrapper {
-                max-width: 480px;
-                padding: 0.5rem;
-                margin-top: 1.5rem;
-                margin-bottom: -1.5rem;
-            }
+    @media (max-width: 576px) {
+        .article-wrapper {
+            max-width: 480px;
+            padding: 0.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: -1.5rem;
         }
+    }
     </style>
     <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
 
-        gtag('config', 'G-HH5R04T2BW', {
-            'cookie_domain': 'sunnyspotholidays.com.au'
-        });
+    gtag('config', 'G-HH5R04T2BW', {
+        'cookie_domain': 'sunnyspotholidays.com.au'
+    });
     </script>
 </head>
 
@@ -275,9 +275,9 @@
     ?>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -285,11 +285,11 @@
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php">Home</a></li>
-                <li class="information"><a href="information.php" class="active">Guest Information</a></li>
-                <li class="attractions"><a href="attractions.php">Attractions</a></li>
-                <li class="foodAndDrink"><a href="foodAndDrink.php">Food & Drink</a></li>
-                <li class="contact"><a href="contact.php">Contact Us</a></li>
+                <li class="home"><a href="home">Home</a></li>
+                <li class="information"><a href="information" class="active">Guest Information</a></li>
+                <li class="attractions"><a href="attractions">Attractions</a></li>
+                <li class="foodAndDrink"><a href="foodAndDrink">Food & Drink</a></li>
+                <li class="contact"><a href="contact">Contact Us</a></li>
             </ul>
             <div class="hamburger-menu">
                 <span></span>
@@ -302,12 +302,12 @@
         <div class="article-wrapper">
             <div class="images images-left">
                 <?php foreach ($imagesLeft as $index => $imageLeft): ?>
-                    <div class="image-details">
-                        <div class="image">
-                            <img src="<?php echo $imageLeft; ?>" alt="<?php echo $leftCaptions[$index]; ?>">
-                        </div>
-                        <p><?php echo $leftCaptions[$index]; ?></p>
+                <div class="image-details">
+                    <div class="image">
+                        <img src="<?php echo $imageLeft; ?>" alt="<?php echo $leftCaptions[$index]; ?>">
                     </div>
+                    <p><?php echo $leftCaptions[$index]; ?></p>
+                </div>
                 <?php endforeach; ?>
             </div>
             <article>
@@ -335,7 +335,7 @@
                     <h3>Check-in and Check-out</h3>
                     <ul>
                         <?php foreach ($checkInInfo as $part) : ?>
-                            <li><?= $part; ?></li>
+                        <li><?= $part; ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -343,7 +343,7 @@
                     <h3>House Rules</h3>
                     <ul>
                         <?php foreach ($houseRules as $rule) : ?>
-                            <li><?= $rule; ?></li>
+                        <li><?= $rule; ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -351,7 +351,7 @@
                     <h3>Cabin Facilities</h3>
                     <ul class="cabin-divider">
                         <?php foreach ($cabinFacilities as $cabinItem) : ?>
-                            <li><?= $cabinItem; ?></li>
+                        <li><?= $cabinItem; ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
@@ -359,18 +359,18 @@
                     <h3>General Facilities</h3>
                     <ul>
                         <?php foreach ($generalFacilities as $generalItem) : ?>
-                            <li><?= $generalItem; ?></li>
+                        <li><?= $generalItem; ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
             </article>
             <div class="images images-right">
                 <?php foreach ($imagesRight as $index => $imageRight): ?>
-                    <div class="image-details">
-                        <div class="image"><img src="<?php echo $imageRight; ?>"
-                                alt="<?php echo $rightCaptions[$index]; ?>"></div>
-                        <p><?php echo $rightCaptions[$index]; ?></p>
-                    </div>
+                <div class="image-details">
+                    <div class="image"><img src="<?php echo $imageRight; ?>"
+                            alt="<?php echo $rightCaptions[$index]; ?>"></div>
+                    <p><?php echo $rightCaptions[$index]; ?></p>
+                </div>
                 <?php endforeach; ?>
             </div>
     </main>
