@@ -7,12 +7,12 @@ if (!isset($_SESSION['csrf_token'])) {
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: admin/login.php");
+    header("Location: admin/login");
     exit;
 }
 // Only allow logged-in users
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header("Location: admin/login.php");
+    header("Location: admin/login");
     exit;
 }
 // Include connection to database
@@ -623,9 +623,9 @@ $connect->close();
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -633,12 +633,12 @@ $connect->close();
         </div>
         <nav>
             <ul>
-                <li class="nav-booking"><a href="staff_dashboard_booking.php" class="active">Booking</a></li>
-                <li class="nav-availability"><a href="staff_dashboard_availability.php">Availability</a>
+                <li class="nav-booking"><a href="staff_dashboard_booking" class="active">Booking</a></li>
+                <li class="nav-availability"><a href="staff_dashboard_availability">Availability</a>
                 </li>
-                <li class="nav-contact"><a href="staff_dashboard_contact.php">Contact</a></li>
-                <li class="nav-cabin"><a href="staff_dashboard_cabin.php">Cabin</a></li>
-                <li class="nav-inclusion"><a href="staff_dashboard_inclusion.php">Inclusion</a></li>
+                <li class="nav-contact"><a href="staff_dashboard_contact">Contact</a></li>
+                <li class="nav-cabin"><a href="staff_dashboard_cabin">Cabin</a></li>
+                <li class="nav-inclusion"><a href="staff_dashboard_inclusion">Inclusion</a></li>
             </ul>
             <div class="hamburger-menu"><span></span><span></span><span></span></div>
         </nav>
@@ -684,7 +684,7 @@ $connect->close();
                     </div>
                     <div class="filter-buttons">
                         <button type="submit" class="filter-button">Apply Filter</button>
-                        <a href="staff_dashboard_booking.php" class="clear-filter">Clear Filter</a>
+                        <a href="staff_dashboard_booking" class="clear-filter">Clear Filter</a>
                     </div>
                 </div>
             </form>
@@ -798,7 +798,7 @@ $connect->close();
                 </table>
             </div>
             <div id="pageSlider"></div>
-            <a class="logout" href="admin/logout.php">Log Out</a>
+            <a class="logout" href="admin/logout">Log Out</a>
         </div>
     </main>
 
@@ -809,7 +809,7 @@ $connect->close();
             </a>
         </p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <a id="login" href="admin/login.php">Admin</a>
+        <a id="login" href="admin/login">Admin</a>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
