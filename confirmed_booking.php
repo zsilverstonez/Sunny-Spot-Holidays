@@ -63,118 +63,118 @@ $booking = [
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <style>
-        main {
-            margin-top: 4rem;
-            background-image: url(images/background.jpg);
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            position: relative;
-            flex: 1;
-        }
+    main {
+        margin-top: 4rem;
+        background-image: url(images/background.jpg);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+        flex: 1;
+    }
 
-        main::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-        }
+    main::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+    }
 
+    .confirm-booking-content {
+        width: 900px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: white;
+        border-radius: 10px;
+        position: relative;
+        margin: 2rem;
+        padding: 2rem;
+    }
+
+    .confirm-booking-content h2 {
+        margin-bottom: -5px;
+        color: rgba(219, 103, 8, 1);
+    }
+
+    .thank-message {
+        color: rgba(219, 103, 8, 1);
+        font-style: italic;
+    }
+
+    .booked-email {
+        margin-bottom: 1rem;
+    }
+
+    .booked-photo img {
+        width: 500px;
+        height: 300px;
+        border-radius: 10px;
+        margin: 1rem 0;
+    }
+
+    .confirm-booking p {
+        margin: 0.2rem 0;
+        line-height: 1.4;
+    }
+
+    #success-message {
+        color: rgba(219, 103, 8, 1);
+        font-style: italic;
+    }
+
+    #close-booking-button {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: rgba(219, 103, 8, 1);
+        color: white;
+        padding: 0.5rem;
+        margin: auto;
+        margin-top: 0.5rem;
+        width: 100px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 568px) {
         .confirm-booking-content {
-            width: 900px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: white;
-            border-radius: 10px;
-            position: relative;
-            margin: 2rem;
-            padding: 2rem;
-        }
-
-        .confirm-booking-content h2 {
-            margin-bottom: -5px;
-            color: rgba(219, 103, 8, 1);
-        }
-
-        .thank-message {
-            color: rgba(219, 103, 8, 1);
-            font-style: italic;
-        }
-
-        .booked-email {
-            margin-bottom: 1rem;
+            width: 400px;
         }
 
         .booked-photo img {
-            width: 500px;
-            height: 300px;
-            border-radius: 10px;
-            margin: 1rem 0;
+            width: 340px;
+            height: 220px;
         }
 
-        .confirm-booking p {
-            margin: 0.2rem 0;
-            line-height: 1.4;
+        .confirm-booking-content p {
+            font-size: 0.9rem;
         }
 
-        #success-message {
-            color: rgba(219, 103, 8, 1);
-            font-style: italic;
-        }
-
-        #close-booking-button {
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background-color: rgba(219, 103, 8, 1);
-            color: white;
-            padding: 0.5rem;
-            margin: auto;
-            margin-top: 0.5rem;
-            width: 100px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 568px) {
-            .confirm-booking-content {
-                width: 400px;
-            }
-
-            .booked-photo img {
-                width: 340px;
-                height: 220px;
-            }
-
-            .confirm-booking-content p {
-                font-size: 0.9rem;
-            }
-
-        }
+    }
     </style>
     <script src="script.js" defer></script>
     <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
+    window.dataLayer = window.dataLayer || [];
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
 
-        gtag('config', 'G-HH5R04T2BW', {
-            'cookie_domain': 'sunnyspotholidays.com.au'
-        });
+    gtag('config', 'G-HH5R04T2BW', {
+        'cookie_domain': 'sunnyspotholidays.com.au'
+    });
     </script>
 </head>
 
 <body>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -182,11 +182,11 @@ $booking = [
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php" class="active">Home</a></li>
-                <li class="information"><a href="information.php">Guest Information</a></li>
-                <li class="attractions"><a href="attractions.php">Attractions</a></li>
-                <li class="foodAndDrink"><a href="foodAndDrink.php">Food & Drink</a></li>
-                <li class="contact"><a href="contact.php">Contact Us</a></li>
+                <li class="home"><a href="home" class="active">Home</a></li>
+                <li class="information"><a href="information">Guest Information</a></li>
+                <li class="attractions"><a href="attractions">Attractions</a></li>
+                <li class="foodAndDrink"><a href="foodAndDrink">Food & Drink</a></li>
+                <li class="contact"><a href="contact">Contact Us</a></li>
             </ul>
             <div class="hamburger-menu">
                 <span></span>
@@ -201,10 +201,10 @@ $booking = [
                 <h2>Your Booking Details</h2>
                 <div class="booked-photo">
                     <?php if (!empty($photo)): ?>
-                        <img src="images/<?php echo htmlspecialchars($photo); ?>"
-                            alt="<?php echo htmlspecialchars($booking['cabinType'] ?? ''); ?> photo">
+                    <img src="images/<?php echo htmlspecialchars($photo); ?>"
+                        alt="<?php echo htmlspecialchars($booking['cabinType'] ?? ''); ?> photo">
                     <?php else: ?>
-                        <p class="empty-photo">testCabin.jpg</p>
+                    <p class="empty-photo">testCabin.jpg</p>
                     <?php endif; ?>
                 </div>
                 <div class="booked-cabin">
