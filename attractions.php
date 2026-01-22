@@ -9,14 +9,17 @@
     <meta name="keywords" content="attraction, where to visit, Tascott, museum, park, attractions">
     <title>Sunny Spot Holidays - Attractions</title>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QGCC41L25H"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGCC41L25H"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-QGCC41L25H');
-</script>
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-QGCC41L25H');
+    </script>
     <link href="styles.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,17 +230,20 @@
         }
     }
     </style>
-   <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) for sunnyspotholidays.com.au only -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH5R04T2BW"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
 
-  gtag('config', 'G-HH5R04T2BW', {
-    'cookie_domain': 'sunnyspotholidays.com.au'
-  });
-</script>
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-HH5R04T2BW', {
+        'cookie_domain': 'sunnyspotholidays.com.au'
+    });
+    </script>
 </head>
 
 <body>
@@ -277,9 +283,9 @@
     ?>
     <header>
         <div class="header-divider">
-            <a href="index.php"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
+            <a href="home"><img src="images/sun.gif" alt="Sunny-logo" class="sunny-logo"></a>
             <div class="title-divider">
-                <a href="index.php" class="title">
+                <a href="home" class="title">
                     <h1>Sunny Spot Holidays</h1>
                 </a>
                 <h3>This is a mock website only!</h3>
@@ -287,7 +293,7 @@
         </div>
         <nav>
             <ul>
-                <li class="home"><a href="index.php">Home</a></li>
+                <li class="home"><a href="home">Home</a></li>
                 <li class="information"><a href="information">Guest Information</a></li>
                 <li class="attractions"><a href="attractions" class="active">Attractions</a></li>
                 <li class="foodAndDrink"><a href="foodAndDrink">Food & Drink</a></li>
