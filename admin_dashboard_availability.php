@@ -7,12 +7,12 @@ if (!isset($_SESSION['csrf_token'])) {
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: login.php");
+    header("Location: admin/login.php");
     exit;
 }
 // Only allow logged-in users
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header("Location: login.php");
+    header("Location: admin/login.php");
     exit;
 }
 // Include connection to database
@@ -111,189 +111,189 @@ $connect->close();
         href="https://fonts.googleapis.com/css2?family=Arima:wght@100..700&family=Dancing+Script:wght@400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <style>
-        .availability-details {
+    .availability-details {
+        width: 100%;
+        height: 80vh;
+        padding: 1rem;
+        margin: 8rem auto;
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        background-color: white;
+        font-family: roboto, sans-serif;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        position: relative;
+        flex: 1;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    table {
+        border: 1px solid #ccc;
+        width: 100%;
+        max-width: 1700px;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        text-align: center;
+        background-color: white;
+    }
+
+    td {
+        padding-block: 0.5rem;
+    }
+
+    table tbody tr:nth-child(even) td {
+        background-color: rgba(95, 62, 4, 0.12);
+    }
+
+    th {
+        background-color: rgba(95, 62, 4, 1);
+        color: white;
+        height: 50px;
+        text-align: center;
+    }
+
+    th:nth-child(2),
+    th:nth-child(3),
+    th:nth-child(4),
+    th:nth-child(5),
+    th:nth-child(6),
+    th:nth-child(7),
+    th:nth-child(8),
+    th:nth-child(9) {
+        width: 160px;
+    }
+
+    .filter-form {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: rgba(95, 62, 4, 0.05);
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .filter-group label {
+        font-size: 0.9rem;
+    }
+
+    .filter-group input {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-family: roboto, sans-serif;
+        width: 200px;
+        text-align: center;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .filter-button {
+        all: unset;
+        padding: 0.5rem 1rem;
+        background-color: rgba(255, 115, 0, 0.77);
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: roboto, sans-serif;
+        text-align: center;
+    }
+
+    .filter-button:hover {
+        background-color: rgba(255, 115, 0, 0.9);
+    }
+
+    .clear-filter {
+        padding: 0.5rem 1rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-family: roboto, sans-serif;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .clear-filter:hover {
+        background-color: rgba(0, 0, 0, 1);
+    }
+
+    .logout {
+        display: block;
+        width: 100px;
+        padding: 0.5rem 1rem;
+        margin: 1rem auto;
+        border: 1px solid #ccc;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        background-color: rgba(95, 62, 4, 1);
+    }
+
+    .logout:hover {
+        background-color: rgba(70, 45, 3, 1);
+    }
+
+    @media (max-width:1600px) {
+        .table-container {
             width: 100%;
-            height: 80vh;
-            padding: 1rem;
-            margin: 8rem auto;
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            background-color: white;
-            font-family: roboto, sans-serif;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            position: relative;
-            flex: 1;
+            overflow-x: auto;
         }
 
-        h2 {
-            text-align: center;
-        }
-
-        table {
-            border: 1px solid #ccc;
-            width: 100%;
-            max-width: 1700px;
-            table-layout: fixed;
+        .availability-details table {
             border-collapse: collapse;
-            margin-bottom: 2rem;
+            min-width: 1700px;
+            table-layout: auto;
         }
 
         th,
         td {
             border: 1px solid #ccc;
             text-align: center;
-            background-color: white;
+        }
+    }
+
+
+    @media (max-width:768px) {
+        th:first-child {
+            width: 300px;
         }
 
-        td {
-            padding-block: 0.5rem;
+        .filter-container input {
+            height: 30px;
         }
-
-        table tbody tr:nth-child(even) td {
-            background-color: rgba(95, 62, 4, 0.12);
-        }
-
-        th {
-            background-color: rgba(95, 62, 4, 1);
-            color: white;
-            height: 50px;
-            text-align: center;
-        }
-
-        th:nth-child(2),
-        th:nth-child(3),
-        th:nth-child(4),
-        th:nth-child(5),
-        th:nth-child(6),
-        th:nth-child(7),
-        th:nth-child(8),
-        th:nth-child(9) {
-            width: 160px;
-        }
-
-        .filter-form {
-            width: 100%;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background-color: rgba(95, 62, 4, 0.05);
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
-
-        .filter-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .filter-group label {
-            font-size: 0.9rem;
-        }
-
-        .filter-group input {
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-family: roboto, sans-serif;
-            width: 200px;
-            text-align: center;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .filter-button {
-            all: unset;
-            padding: 0.5rem 1rem;
-            background-color: rgba(255, 115, 0, 0.77);
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: roboto, sans-serif;
-            text-align: center;
-        }
-
-        .filter-button:hover {
-            background-color: rgba(255, 115, 0, 0.9);
-        }
-
-        .clear-filter {
-            padding: 0.5rem 1rem;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            font-family: roboto, sans-serif;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .clear-filter:hover {
-            background-color: rgba(0, 0, 0, 1);
-        }
-
-        .logout {
-            display: block;
-            width: 100px;
-            padding: 0.5rem 1rem;
-            margin: 1rem auto;
-            border: 1px solid #ccc;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            color: white;
-            background-color: rgba(95, 62, 4, 1);
-        }
-
-        .logout:hover {
-            background-color: rgba(70, 45, 3, 1);
-        }
-
-        @media (max-width:1600px) {
-            .table-container {
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            .availability-details table {
-                border-collapse: collapse;
-                min-width: 1700px;
-                table-layout: auto;
-            }
-
-            th,
-            td {
-                border: 1px solid #ccc;
-                text-align: center;
-            }
-        }
-
-
-        @media (max-width:768px) {
-            th:first-child {
-                width: 300px;
-            }
-
-            .filter-container input {
-                height: 30px;
-            }
-        }
+    }
     </style>
     <script src="script.js" defer></script>
 </head>
@@ -363,7 +363,7 @@ $connect->close();
                     </thead>
                     <tbody>
                         <?php foreach ($cabins as $i => $cabin) : ?>
-                            <?php
+                        <?php
                             $totalCabins = (int)($cabin['quantity'] ?? 0);
                             $new = $newCabins[$cabin['cabinType']] ?? 0;
                             $confirmed = $confirmedCabins[$cabin['cabinType']] ?? 0;
@@ -373,26 +373,26 @@ $connect->close();
                             $available = $totalCabins - $confirmed - $checkedIn - $checkedOut - $cancelled;
                             $archived = $archivedCabins[$cabin['cabinType']] ?? 0;
                             ?>
-                            <tr>
-                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"
-                                    readonly>
-                                <td><?php echo htmlspecialchars($cabin['cabinType']); ?>
-                                </td>
-                                <td><?php echo htmlspecialchars($totalCabins); ?>
-                                </td>
-                                <td><?php echo htmlspecialchars($new); ?></td>
-                                <td><?php echo htmlspecialchars($confirmed); ?></td>
-                                <td><?php echo htmlspecialchars($checkedIn); ?></td>
-                                <td><?php echo htmlspecialchars($checkedOut); ?></td>
-                                <td><?php echo htmlspecialchars($cancelled); ?></td>
-                                <td><?php echo htmlspecialchars($available); ?></td>
-                                <td><?php echo htmlspecialchars($archived); ?></td>
-                            </tr>
+                        <tr>
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"
+                                readonly>
+                            <td><?php echo htmlspecialchars($cabin['cabinType']); ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($totalCabins); ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($new); ?></td>
+                            <td><?php echo htmlspecialchars($confirmed); ?></td>
+                            <td><?php echo htmlspecialchars($checkedIn); ?></td>
+                            <td><?php echo htmlspecialchars($checkedOut); ?></td>
+                            <td><?php echo htmlspecialchars($cancelled); ?></td>
+                            <td><?php echo htmlspecialchars($available); ?></td>
+                            <td><?php echo htmlspecialchars($archived); ?></td>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-            <a class="logout" href="logout.php">Log Out</a>
+            <a class="logout" href="admin/logout.php">Log Out</a>
         </div>
     </main>
 
@@ -403,7 +403,7 @@ $connect->close();
             </a>
         </p>
         <p>© 2025 Copyright Sunny Spot Holidays</p>
-        <li id="login"><a href="login.php">Admin</a></li>
+        <a id="login" href="admin/login.php">Admin</a>
         <img src="images/author.png" alt="author" class="author">
     </footer>
 </body>
